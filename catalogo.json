@@ -1,0 +1,269 @@
+{
+  "titulo": "Laboratorio de mercados",
+  "descripcion": "Plan de estudio personal de trading, futuros, IA aplicada y seguridad informática, con tutoriales interactivos que se van agregando a medida que se construyen.",
+  "generado": "2026-11-05T01:25:58+00:00",
+  "totales": {
+    "temas": 34,
+    "listos": 2,
+    "progreso": 0
+  },
+  "rutas": [
+    {
+      "id": "fundamentos",
+      "titulo": "Fundamentos del mercado",
+      "descripcion": "Cómo funciona la bolsa, qué se negocia y qué pasa con una orden desde que se envía hasta que se ejecuta.",
+      "temas": [
+        {
+          "titulo": "Cómo funciona una bolsa y quién está del otro lado",
+          "archivo": "fundamentos/como-funciona-bolsa.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Tipos de órdenes: mercado, límite, stop y stop límite",
+          "archivo": "fundamentos/tipos-de-ordenes.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Acciones, ETFs y derivados",
+          "archivo": "fundamentos/instrumentos.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Brókers, comisiones y deslizamiento",
+          "archivo": "fundamentos/costos-de-operar.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Sesiones, horarios y huecos de apertura",
+          "archivo": "fundamentos/sesiones-y-huecos.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "analisis-tecnico",
+      "titulo": "Análisis técnico",
+      "descripcion": "Leer el gráfico: velas, tendencia, zonas, indicadores y volumen.",
+      "temas": [
+        {
+          "titulo": "El lenguaje de las velas",
+          "archivo": "analisis-tecnico/velas-japonesas.html",
+          "nivel": "básico",
+          "estado": "listo",
+          "fecha": "2026-11-03",
+          "descripcion": "Taller de 10 lecciones: anatomía de una vela, patrones, tendencia, soportes y resistencias, medias móviles, volumen, temporalidades y riesgo."
+        },
+        {
+          "titulo": "Medias móviles, retrocesos y cruces",
+          "archivo": "analisis-tecnico/medias-moviles.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "RSI, MACD y otros osciladores",
+          "archivo": "analisis-tecnico/osciladores.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "ATR: medir la volatilidad",
+          "archivo": "analisis-tecnico/atr-volatilidad.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Volumen y perfil de volumen",
+          "archivo": "analisis-tecnico/volumen.html",
+          "nivel": "avanzado",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "riesgo",
+      "titulo": "Gestión del riesgo",
+      "descripcion": "Cuánto arriesgar, dónde salir y cómo sobrevivir a las rachas malas.",
+      "temas": [
+        {
+          "titulo": "Tamaño de posición por riesgo fijo",
+          "archivo": "riesgo/tamano-de-posicion.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Stops por ATR y stops que suben (trailing)",
+          "archivo": "riesgo/stops-atr-trailing.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Múltiplos R y expectativa matemática",
+          "archivo": "riesgo/multiplos-r.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Rachas perdedoras y caída máxima",
+          "archivo": "riesgo/rachas-y-drawdown.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Correlación y diversificación de la cartera",
+          "archivo": "riesgo/correlacion.html",
+          "nivel": "avanzado",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "futuros",
+      "titulo": "Futuros",
+      "descripcion": "Contratos, margen, apalancamiento y vencimientos, con el micro E-mini S&P 500 como ejemplo.",
+      "temas": [
+        {
+          "titulo": "Qué es un contrato de futuros",
+          "archivo": "futuros/que-es-un-futuro.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Micro E-mini S&P 500: tick, punto y margen",
+          "archivo": "futuros/micro-e-mini.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Apalancamiento y margen de mantenimiento",
+          "archivo": "futuros/apalancamiento-margen.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Vencimientos y cambio de contrato (rollover)",
+          "archivo": "futuros/vencimientos-rollover.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Mercado casi 24 horas y riesgo nocturno",
+          "archivo": "futuros/horario-y-riesgo-nocturno.html",
+          "nivel": "avanzado",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "automatizacion",
+      "titulo": "Automatización y backtesting",
+      "descripcion": "De la idea al sistema: datos, conexión con el bróker y pruebas que no engañan.",
+      "temas": [
+        {
+          "titulo": "Datos de mercado con Python y pandas",
+          "archivo": "automatizacion/datos-con-pandas.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Conectarse a la API de un bróker",
+          "archivo": "automatizacion/api-del-broker.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Backtesting sin engañarse: sesgos comunes",
+          "archivo": "automatizacion/sesgos-del-backtest.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Sobreajuste y validación fuera de muestra",
+          "archivo": "automatizacion/sobreajuste.html",
+          "nivel": "avanzado",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Del paper trading a la cuenta real",
+          "archivo": "automatizacion/paper-a-real.html",
+          "nivel": "avanzado",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "ia",
+      "titulo": "IA aplicada",
+      "descripcion": "Qué hay dentro de un modelo y qué puede y no puede hacer con datos de mercado.",
+      "temas": [
+        {
+          "titulo": "Neurona a neurona",
+          "archivo": "ia/redes-neuronales.html",
+          "nivel": "intermedio",
+          "estado": "listo",
+          "fecha": "2026-11-03",
+          "descripcion": "Tres experimentos: una neurona sola, cómo aprende corrigiendo errores y una red completa que resuelve XOR y espirales."
+        },
+        {
+          "titulo": "Regresión y clasificación con datos de precios",
+          "archivo": "ia/regresion-clasificacion.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Por qué un modelo casi nunca predice el precio",
+          "archivo": "ia/limites-de-la-prediccion.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Modelos de lenguaje como asistentes de investigación",
+          "archivo": "ia/modelos-de-lenguaje.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        }
+      ]
+    },
+    {
+      "id": "seguridad",
+      "titulo": "Seguridad informática",
+      "descripcion": "Proteger cuentas, servidores y llaves de acceso. Solo prácticas defensivas, en equipos propios.",
+      "temas": [
+        {
+          "titulo": "Contraseñas, gestores y doble factor",
+          "archivo": "seguridad/contrasenas-y-2fa.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Endurecer un VPS: SSH, firewall y fail2ban",
+          "archivo": "seguridad/endurecer-vps.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Guardar llaves y tokens sin exponerlos",
+          "archivo": "seguridad/secretos-y-llaves.html",
+          "nivel": "intermedio",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Copias de seguridad y recuperación",
+          "archivo": "seguridad/copias-de-seguridad.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        },
+        {
+          "titulo": "Phishing y fraudes dirigidos a inversionistas",
+          "archivo": "seguridad/fraudes-a-inversionistas.html",
+          "nivel": "básico",
+          "estado": "pendiente"
+        }
+      ]
+    }
+  ]
+}

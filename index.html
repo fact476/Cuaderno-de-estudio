@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratorio de mercados</title>
+<meta name="description" content="Plan de estudio personal de trading, futuros, IA aplicada y seguridad informática, con tutoriales interactivos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<style>
+/* Índice de un cuaderno de laboratorio: papel cuadriculado, rutas como capítulos con
+   renglones de puntos, y lo ya estudiado subrayado con marcador. Lo único llamativo
+   es la curva de aprendizaje: sube un escalón por cada tutorial terminado. */
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2a2300;
+  --f-titulo:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --papel:#0f1a1d; --hoja:#15242a; --tinta:#e2eae6; --grafito:#93a5a6;
+    --regla:#2b4144; --cuadro:#162a2e; --marcador:#e6c449; --marcador-tinta:#1f1a00;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --papel:#0f1a1d; --hoja:#15242a; --tinta:#e2eae6; --grafito:#93a5a6;
+  --regla:#2b4144; --cuadro:#162a2e; --marcador:#e6c449; --marcador-tinta:#1f1a00;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--tinta); font:17px/1.6 var(--f-texto);
+  background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px;border-radius:2px}
+.hoja{max-width:1040px;margin:0 auto;padding:40px 16px 64px}
+
+/* Portada */
+.portada h1{
+  font-family:var(--f-titulo); font-weight:800; font-variation-settings:"opsz" 96;
+  font-size:clamp(52px,11vw,124px); line-height:.88; letter-spacing:-.04em;
+  margin:0; max-width:9ch; text-wrap:balance;
+}
+.portada p{max-width:58ch;margin:20px 0 0;font-size:clamp(17px,1.7vw,19px)}
+
+/* Curva de aprendizaje */
+.curva{margin-top:36px;background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:18px 18px 14px}
+.curva-cab{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 20px}
+.curva-cab h2{font-family:var(--f-titulo);font-weight:700;font-size:20px;margin:0;letter-spacing:-.01em}
+.cuenta{margin:0;font-family:var(--f-titulo);font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1;letter-spacing:-.02em}
+.cuenta small{font:400 16px var(--f-texto);color:var(--grafito);letter-spacing:0;margin-left:6px}
+#grafica{display:block;width:100%;height:auto;margin-top:12px;overflow:visible}
+.g-linea{fill:none;stroke:var(--tinta);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.g-area{fill:var(--marcador);opacity:.38}
+.g-guia{stroke:var(--regla);stroke-width:1}
+.g-texto{fill:var(--grafito);font:13px var(--f-texto)}
+.g-punto{fill:var(--marcador);stroke:var(--tinta);stroke-width:2}
+.curva-pie{margin:10px 0 0;color:var(--grafito);font-size:15px}
+.curva-pie a{color:var(--tinta);font-weight:700}
+@media (prefers-reduced-motion: no-preference){
+  .g-linea.dibujar{animation:trazo 1.1s cubic-bezier(.4,0,.2,1) .15s both}
+  @keyframes trazo{from{stroke-dashoffset:var(--largo)}to{stroke-dashoffset:0}}
+}
+
+/* Filtro */
+.filtro{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:44px 0 6px}
+.filtro span{color:var(--grafito);font-size:15px}
+.seg{display:inline-flex;border:1.5px solid var(--tinta);border-radius:5px;overflow:hidden}
+.seg button{font:700 15px var(--f-texto);color:var(--tinta);background:transparent;border:0;padding:7px 14px;cursor:pointer}
+.seg button+button{border-left:1.5px solid var(--tinta)}
+.seg button[aria-pressed="true"]{background:var(--tinta);color:var(--hoja)}
+
+/* Índice por capítulos */
+.capitulo{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 20px;padding:30px 0 26px;border-top:1.5px solid var(--tinta)}
+.capitulo:first-of-type{margin-top:12px}
+.num{font-family:var(--f-titulo);font-weight:800;font-size:56px;line-height:.85;letter-spacing:-.04em;font-variation-settings:"opsz" 96}
+.cap-cab{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 16px}
+.cap-cab h3{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,2.8vw,30px);line-height:1.1;margin:0;letter-spacing:-.015em}
+.avance{color:var(--grafito);font-size:15px;white-space:nowrap}
+.cap-desc{margin:6px 0 14px;color:var(--grafito);max-width:62ch;font-size:16px}
+.temas{list-style:none;margin:0;padding:0}
+.tema{padding:7px 0}
+.fila{display:flex;align-items:baseline;gap:10px}
+.tema-titulo{min-width:0}
+.tema-titulo a{text-decoration:none;font-weight:700;
+  background:linear-gradient(transparent 38%,var(--marcador) 38%,var(--marcador) 90%,transparent 90%);
+  color:var(--tinta);padding:0 .1em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.tema-titulo a:hover{background:linear-gradient(transparent 8%,var(--marcador) 8%,var(--marcador) 94%,transparent 94%)}
+.tema.pendiente .tema-titulo{color:var(--grafito)}
+.tema.progreso .tema-titulo a{background:none;border-bottom:2px dashed var(--tinta)}
+.desc{color:var(--grafito);font-size:15px;line-height:1.45;margin:2px 0 0;max-width:60ch}
+.leyenda{color:var(--grafito);font-size:15px;margin-left:auto}
+.leyenda .nivel{margin:0 4px 0 0}
+.puntos{flex:1 1 24px;min-width:24px;border-bottom:2px dotted var(--regla);transform:translateY(-5px)}
+.estado{flex:none;font-size:15px;color:var(--grafito);white-space:nowrap;text-align:right}
+.tema.listo .estado{color:var(--tinta)}
+.nivel{display:inline-flex;align-items:flex-end;gap:2px;height:12px;margin-left:8px;vertical-align:-1px}
+.nivel i{display:block;width:4px;border-radius:1px;background:var(--regla)}
+.nivel i:nth-child(1){height:5px}.nivel i:nth-child(2){height:8px}.nivel i:nth-child(3){height:11px}
+.nivel i.on{background:var(--grafito)}
+.oculto{display:none}
+.vacio{color:var(--grafito);font-size:15px;margin:4px 0 0}
+@media (max-width:640px){
+  .capitulo{grid-template-columns:minmax(0,1fr);gap:4px}
+  .num{font-size:40px}
+  .fila{flex-wrap:wrap;gap:0 10px}
+  .tema-titulo{flex:1 1 100%}
+  .puntos{display:none}
+  .estado{text-align:left;font-size:14px}
+  .tema.pendiente .estado{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .leyenda{margin-left:0;flex-basis:100%}
+}
+
+.aviso{margin-top:32px;padding:16px 18px;border:1.5px solid var(--tinta);border-radius:6px;background:var(--hoja);max-width:66ch}
+.aviso code{font-size:15px}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--regla);color:var(--grafito);font-size:14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px}
+</style>
+</head>
+<body>
+<div class="hoja">
+  <header class="portada">
+    <h1 id="titulo">Laboratorio de mercados</h1>
+    <p id="lema">Plan de estudio personal de trading, futuros, IA aplicada y seguridad informática, con tutoriales interactivos que se van agregando a medida que se construyen.</p>
+  </header>
+
+  <section class="curva" aria-labelledby="curva-h">
+    <div class="curva-cab">
+      <h2 id="curva-h">Curva de aprendizaje</h2>
+      <p class="cuenta" id="cuenta" aria-live="polite">&nbsp;</p>
+    </div>
+    <svg id="grafica" role="img" aria-labelledby="grafica-desc"><desc id="grafica-desc">Tutoriales terminados a lo largo del tiempo</desc></svg>
+    <p class="curva-pie" id="ultimo"></p>
+  </section>
+
+  <div class="filtro" role="group" aria-label="Qué temas mostrar">
+    <span>Mostrar</span>
+    <div class="seg">
+      <button type="button" data-filtro="todos" aria-pressed="true">Todo el plan</button>
+      <button type="button" data-filtro="listos" aria-pressed="false">Solo lo estudiado</button>
+    </div>
+    <span class="leyenda"><span class="nivel" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>Las barras marcan el nivel: una, básico; tres, avanzado.</span>
+  </div>
+
+  <main id="indice"></main>
+
+  <footer>
+    <span>Material de estudio personal. No es asesoría financiera.</span>
+    <span id="actualizado"></span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  var NIVEL = { "básico": 1, "intermedio": 2, "avanzado": 3 };
+  var NS = "http://www.w3.org/2000/svg";
+  var datos = null, filtro = "todos";
+
+  function $(s) { return document.querySelector(s); }
+  function dia(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function fechaCorta(iso) { var d = dia(iso); return d.getDate() + " " + MESES[d.getMonth()] + " " + d.getFullYear(); }
+  function hoyISO() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function el(tag, attrs, padre) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (padre) padre.appendChild(e);
+    return e;
+  }
+  function nodo(tag, clase, texto) {
+    var e = document.createElement(tag);
+    if (clase) e.className = clase;
+    if (texto != null) e.textContent = texto;
+    return e;
+  }
+
+  /* ---------- Índice ---------- */
+  function pintarIndice() {
+    var cont = $("#indice");
+    cont.textContent = "";
+    datos.rutas.forEach(function (ruta, i) {
+      var listos = ruta.temas.filter(function (t) { return t.estado === "listo"; }).length;
+      var cap = nodo("section", "capitulo");
+      cap.id = ruta.id;
+      cap.setAttribute("aria-labelledby", "h-" + ruta.id);
+      cap.appendChild(nodo("div", "num", String(i + 1)));
+
+      var cuerpo = nodo("div");
+      var cab = nodo("div", "cap-cab");
+      var h = nodo("h3", null, ruta.titulo); h.id = "h-" + ruta.id;
+      cab.appendChild(h);
+      cab.appendChild(nodo("span", "avance", listos + " de " + ruta.temas.length + " estudiados"));
+      cuerpo.appendChild(cab);
+      if (ruta.descripcion) cuerpo.appendChild(nodo("p", "cap-desc", ruta.descripcion));
+
+      var lista = nodo("ul", "temas");
+      var visibles = 0;
+      ruta.temas.forEach(function (t) {
+        var li = nodo("li", "tema " + t.estado);
+        if (filtro === "listos" && t.estado === "pendiente") li.classList.add("oculto"); else visibles++;
+        var fila = nodo("div", "fila");
+        var tit = nodo("span", "tema-titulo");
+        if (t.estado === "pendiente") {
+          tit.appendChild(document.createTextNode(t.titulo));
+        } else {
+          var a = nodo("a", null, t.titulo);
+          a.href = t.archivo;
+          tit.appendChild(a);
+        }
+        if (t.nivel && NIVEL[t.nivel]) {
+          var nv = nodo("span", "nivel");
+          nv.setAttribute("role", "img");
+          nv.setAttribute("aria-label", "Nivel " + t.nivel);
+          nv.title = "Nivel " + t.nivel;
+          for (var k = 1; k <= 3; k++) nv.appendChild(nodo("i", k <= NIVEL[t.nivel] ? "on" : ""));
+          tit.appendChild(nv);
+        }
+        fila.appendChild(tit);
+        fila.appendChild(nodo("span", "puntos"));
+        var est = t.estado === "listo" ? fechaCorta(t.fecha) : t.estado === "progreso" ? "en progreso" : "pendiente";
+        fila.appendChild(nodo("span", "estado", est));
+        li.appendChild(fila);
+        if (t.descripcion && t.estado !== "pendiente") li.appendChild(nodo("p", "desc", t.descripcion));
+        lista.appendChild(li);
+      });
+      cuerpo.appendChild(lista);
+      if (!visibles) cuerpo.appendChild(nodo("p", "vacio", "Todavía no hay tutoriales en este capítulo."));
+      cap.appendChild(cuerpo);
+      cont.appendChild(cap);
+    });
+  }
+
+  /* ---------- Curva de aprendizaje ---------- */
+  function terminados() {
+    var out = [];
+    datos.rutas.forEach(function (r) {
+      r.temas.forEach(function (t) { if (t.estado === "listo") out.push({ titulo: t.titulo, archivo: t.archivo, fecha: t.fecha }); });
+    });
+    return out.sort(function (a, b) { return a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0; });
+  }
+
+  function pintarCurva() {
+    var svg = $("#grafica"), lista = terminados(), total = datos.totales.temas;
+    while (svg.lastChild && svg.lastChild.nodeName !== "desc") svg.removeChild(svg.lastChild);
+
+    $("#cuenta").innerHTML = "";
+    $("#cuenta").appendChild(document.createTextNode(String(lista.length)));
+    $("#cuenta").appendChild(nodo("small", null, "de " + total + " temas del plan"));
+
+    var W = Math.max(300, Math.round(svg.parentNode.clientWidth - 36));
+    var H = W < 560 ? 170 : 210;
+    var pad = { l: 34, r: 14, t: 14, b: 28 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+    if (!lista.length) {
+      el("text", { x: pad.l, y: H / 2, "class": "g-texto" }, svg).textContent = "El primer tutorial terminado aparecerá aquí.";
+      $("#ultimo").textContent = "";
+      return;
+    }
+
+    var DIA = 864e5;
+    var primero = dia(lista[0].fecha).getTime();
+    var hoy = Math.max(dia(hoyISO()).getTime(), dia(lista[lista.length - 1].fecha).getTime());
+    var margen = Math.max(2 * DIA, (hoy - primero) * 0.06);
+    var t0 = primero - margen, t1 = hoy + margen / 2;
+    var ymax = Math.max(5, lista.length + 2);
+    function X(t) { return pad.l + (t - t0) / (t1 - t0) * (W - pad.l - pad.r); }
+    function Y(v) { return pad.t + (1 - v / ymax) * (H - pad.t - pad.b); }
+
+    var paso = ymax <= 6 ? 1 : ymax <= 12 ? 2 : 5;
+    for (var v = 0; v <= ymax; v += paso) {
+      el("line", { x1: pad.l, x2: W - pad.r, y1: Y(v), y2: Y(v), "class": "g-guia" }, svg);
+      el("text", { x: pad.l - 8, y: Y(v) + 4, "text-anchor": "end", "class": "g-texto" }, svg).textContent = v;
+    }
+    var xIni = X(primero), xHoy = X(hoy);
+    el("text", { x: xIni, y: H - 6, "text-anchor": "middle", "class": "g-texto" }, svg).textContent = fechaCorta(lista[0].fecha);
+    if (xHoy - xIni > 90) el("text", { x: xHoy, y: H - 6, "text-anchor": "end", "class": "g-texto" }, svg).textContent = "hoy";
+
+    // escalones: un tutorial más en cada fecha
+    var cuenta = 0, d = "M" + X(t0) + " " + Y(0), puntos = [];
+    lista.forEach(function (t) {
+      var x = X(dia(t.fecha).getTime());
+      d += " L" + x + " " + Y(cuenta);
+      cuenta++;
+      d += " L" + x + " " + Y(cuenta);
+      puntos.push({ x: x, y: Y(cuenta), t: t, n: cuenta });
+    });
+    d += " L" + xHoy + " " + Y(cuenta);
+    el("path", { d: d + " L" + xHoy + " " + Y(0) + " Z", "class": "g-area" }, svg);
+    var linea = el("path", { d: d, "class": "g-linea" }, svg);
+    var largo = linea.getTotalLength ? linea.getTotalLength() : 0;
+    if (largo) {
+      linea.style.strokeDasharray = largo;
+      linea.style.setProperty("--largo", largo);
+      linea.classList.add("dibujar");
+    }
+    puntos.forEach(function (p) {
+      var c = el("circle", { cx: p.x, cy: p.y, r: 5.5, "class": "g-punto" }, svg);
+      el("title", {}, c).textContent = p.t.titulo + " (" + fechaCorta(p.t.fecha) + ")";
+    });
+
+    var u = lista[lista.length - 1];
+    var pie = $("#ultimo");
+    pie.textContent = "Lo último: ";
+    var a = nodo("a", null, u.titulo); a.href = u.archivo;
+    pie.appendChild(a);
+    pie.appendChild(document.createTextNode(", " + fechaCorta(u.fecha) + "."));
+  }
+
+  /* ---------- Filtro ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-filtro]"), function (b) {
+    b.addEventListener("click", function () {
+      filtro = b.getAttribute("data-filtro");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-filtro]"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      if (datos) pintarIndice();
+    });
+  });
+
+  var espera = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(espera);
+    espera = setTimeout(function () { if (datos) pintarCurva(); }, 120);
+  });
+
+  fetch("catalogo.json", { cache: "no-cache" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (c) {
+      datos = c;
+      if (c.titulo) { $("#titulo").textContent = c.titulo; document.title = c.titulo; }
+      if (c.descripcion) $("#lema").textContent = c.descripcion;
+      if (c.generado) $("#actualizado").textContent = "Catálogo actualizado el " + fechaCorta(c.generado.slice(0, 10)) + ".";
+      pintarCurva();
+      pintarIndice();
+    })
+    .catch(function () {
+      var av = nodo("div", "aviso");
+      av.appendChild(nodo("p", null, "No se pudo cargar catalogo.json. Si abriste index.html directo desde la carpeta, el navegador bloquea la lectura del archivo."));
+      var p = nodo("p", null, "Levanta un servidor local en la carpeta del proyecto con ");
+      p.appendChild(nodo("code", null, "python3 -m http.server 8000"));
+      p.appendChild(document.createTextNode(" y entra a localhost:8000."));
+      av.appendChild(p);
+      $("#indice").appendChild(av);
+      $("#cuenta").textContent = "";
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Estas cuatro etiquetas alimentan el menú principal. Cámbialas en cada tutorial. -->
+<title>Título del tutorial</title>
+<meta name="description" content="Una o dos frases sobre lo que se aprende aquí.">
+<meta name="tutorial:nivel" content="básico">          <!-- básico | intermedio | avanzado -->
+<meta name="tutorial:fecha" content="2026-11-04">      <!-- AAAA-MM-DD, el día que quedó listo -->
+<!-- Opcional: <meta name="tutorial:estado" content="progreso"> mientras está a medias -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a;
+  --alza:#1c6e52; --baja:#b8432f;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--alza:#4cc38f;--baja:#f07a63;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:.95;letter-spacing:-.035em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(24px,3vw,30px);line-height:1.15;margin:0 0 10px}
+p{max-width:64ch}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+footer{margin-top:40px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+  <nav class="volver" aria-label="Navegación"><a href="../index.html">← Laboratorio de mercados</a></nav>
+  <h1>Título del tutorial</h1>
+  <p>Qué vas a entender al terminar, en una o dos frases.</p>
+
+  <section class="leccion">
+    <h2>1. Idea central</h2>
+    <p>Explicación corta.</p>
+    <!-- Aquí va la parte interactiva: controles a un lado y gráfico o simulación al otro. -->
+    <p class="clave">Lo que hay que llevarse de esta lección.</p>
+  </section>
+
+  <footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+// Todo el JavaScript del tutorial va aquí, en el mismo archivo.
+</script>
+</body>
+</html>
