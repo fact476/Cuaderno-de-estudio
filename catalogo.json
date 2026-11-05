@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-05T01:32:09+00:00",
+  "generado": "2026-11-05T01:51:08+00:00",
   "totales": {
     "temas": 34,
-    "listos": 2,
+    "listos": 3,
     "progreso": 0
   },
   "rutas": [
@@ -130,7 +130,9 @@
           "titulo": "Qué es un contrato de futuros",
           "archivo": "futuros/que-es-un-futuro.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-04",
+          "descripcion": "Seis lecciones con simuladores: el acuerdo a plazo con el ejemplo del café, comprador y vendedor, la bolsa y la cámara de compensación, la liquidación diaria con margen y para qué se usan."
         },
         {
           "titulo": "Micro E-mini S&P 500: tick, punto y margen",

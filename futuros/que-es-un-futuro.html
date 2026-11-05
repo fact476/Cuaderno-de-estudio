@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qué es un contrato de futuros</title>
+<meta name="description" content="Seis lecciones con simuladores: el acuerdo a plazo con el ejemplo del café, comprador y vendedor, la bolsa y la cámara de compensación, la liquidación diaria con margen y para qué se usan.">
+<meta name="tutorial:nivel" content="básico">
+<meta name="tutorial:fecha" content="2026-11-04">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<style>
+/* Cuaderno de estudio: papel cuadriculado, tinta pizarra, marcador amarillo.
+   Comprador (largo) en azul y vendedor (corto) en naranja en todos los gráficos. */
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2a2300;
+  --largo:#1f5fa8; --corto:#c0581c; --gana:#1c6e52; --pierde:#b8432f;
+  --largo-suave:#dbe6f4; --corto-suave:#f6e2d6;
+  --f-titulo:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --papel:#0f1a1d; --hoja:#15242a; --tinta:#e2eae6; --grafito:#93a5a6;
+    --regla:#2b4144; --cuadro:#162a2e; --marcador:#e6c449; --marcador-tinta:#1f1a00;
+    --largo:#6aa8ef; --corto:#f0915a; --gana:#4cc38f; --pierde:#f07a63;
+    --largo-suave:#1b3048; --corto-suave:#40281b;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px;border-radius:2px}
+[hidden]{display:none!important}
+.hoja{max-width:960px;margin:0 auto;padding:16px 16px 72px}
+.volver a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+
+/* Portada */
+.portada{margin:28px 0 8px}
+.portada h1{font-family:var(--f-titulo);font-weight:800;font-variation-settings:"opsz" 96;font-size:clamp(44px,8.5vw,92px);line-height:.9;letter-spacing:-.04em;margin:0 0 18px;max-width:12ch;text-wrap:balance}
+.portada p{max-width:60ch;margin:0;font-size:clamp(17px,1.8vw,20px)}
+.indice{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;padding:0;list-style:none}
+.indice a{display:inline-flex;gap:8px;align-items:baseline;padding:6px 12px 6px 8px;border:1.5px solid var(--tinta);border-radius:5px;background:var(--hoja);color:var(--tinta);text-decoration:none;font-weight:700;font-size:15px}
+.indice a b{font-family:var(--f-titulo);font-weight:800}
+.indice a:hover{background:color-mix(in srgb,var(--marcador) 40%,var(--hoja))}
+
+/* Lecciones */
+.leccion{margin-top:44px;scroll-margin-top:16px}
+.leccion-cab{display:flex;align-items:flex-start;gap:16px;border-top:1.5px solid var(--tinta);padding-top:22px}
+.leccion-num{font-family:var(--f-titulo);font-weight:800;font-size:52px;line-height:.85;letter-spacing:-.04em;min-width:42px}
+.leccion h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(26px,3.6vw,36px);line-height:1.1;letter-spacing:-.015em;margin:0}
+.texto{max-width:64ch}
+.texto p{margin:12px 0 0}
+.panel{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:18px;margin-top:18px}
+.clave{margin:16px 0 0;padding:4px 0 4px 14px;border-left:4px solid var(--marcador);max-width:64ch}
+.nota{color:var(--grafito);font-size:15px;margin:10px 0 0}
+.mal{color:var(--grafito)}
+
+/* Controles */
+.control{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr) 7.5rem;gap:12px;align-items:center;margin-top:10px}
+.control label{font-weight:700;font-size:15px}
+.control output{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--tinta);height:28px;margin:0}
+.botones{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn{font:700 15px var(--f-texto);padding:8px 14px;border-radius:5px;border:1.5px solid var(--tinta);background:transparent;color:var(--tinta);cursor:pointer}
+.btn:hover{background:color-mix(in srgb,var(--tinta) 8%,transparent)}
+.btn.lleno{background:var(--tinta);color:var(--hoja)}
+.btn[aria-pressed="true"]{background:var(--tinta);color:var(--hoja)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@media (max-width:560px){.control{grid-template-columns:minmax(0,1fr) 6.5rem}.control input{grid-column:1/-1;grid-row:2}}
+
+/* Lección 1: el trato del café */
+.trato{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.parte{border-radius:6px;padding:14px;border:1.5px solid}
+.parte.largo{border-color:var(--largo);background:var(--largo-suave)}
+.parte.corto{border-color:var(--corto);background:var(--corto-suave)}
+.parte h3{margin:0;font-family:var(--f-titulo);font-size:20px;font-weight:700}
+.parte .rol{margin:0 0 8px;font-size:14px;color:var(--grafito)}
+.parte dl{margin:0;display:grid;gap:4px}
+.parte dl div{display:flex;justify-content:space-between;gap:10px;font-size:15px}
+.parte dt{color:var(--grafito)}
+.parte dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.resultado{font-family:var(--f-titulo);font-weight:800;font-size:clamp(22px,3vw,28px);margin-top:8px;font-variant-numeric:tabular-nums}
+.gana{color:var(--gana)} .pierde{color:var(--pierde)}
+.suma{margin-top:14px;padding:10px 14px;border-radius:5px;background:color-mix(in srgb,var(--marcador) 30%,var(--hoja));font-size:15px}
+@media (max-width:620px){.trato{grid-template-columns:minmax(0,1fr)}}
+
+/* Gráficos */
+.grafico{display:block;width:100%;height:auto;margin-top:12px;overflow:visible}
+.g-guia{stroke:var(--regla);stroke-width:1}
+.g-cero{stroke:var(--grafito);stroke-width:1.2}
+.g-texto{fill:var(--grafito);font:13px var(--f-texto)}
+.g-fuerte{fill:var(--tinta);font:700 13px var(--f-texto)}
+.g-largo{stroke:var(--largo);stroke-width:3;fill:none}
+.g-corto{stroke:var(--corto);stroke-width:3;fill:none}
+.g-tenue{opacity:.22}
+.g-vertical{stroke:var(--tinta);stroke-width:1.2;stroke-dasharray:4 4}
+.g-pactado{stroke:var(--grafito);stroke-width:1;stroke-dasharray:2 4}
+.leyenda{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:14px;color:var(--grafito);margin-top:6px}
+.leyenda i{display:inline-block;width:16px;height:3px;border-radius:2px;vertical-align:4px;margin-right:6px}
+
+/* Lección 3: cámara */
+.comparar{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px}
+.comparar th,.comparar td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+.comparar th{font-weight:700}
+.comparar td.activo{background:color-mix(in srgb,var(--marcador) 30%,transparent)}
+.tabla-scroll{overflow-x:auto}
+
+/* Lección 4: liquidación diaria */
+.cuentas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.cuenta{border-radius:6px;padding:12px 14px;border:1.5px solid}
+.cuenta.largo{border-color:var(--largo)} .cuenta.corto{border-color:var(--corto)}
+.cuenta h3{margin:0;font-size:16px}
+.saldo{font-family:var(--f-titulo);font-weight:800;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.barra{height:10px;border-radius:5px;background:var(--cuadro);margin-top:8px;position:relative;overflow:hidden}
+.barra span{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.cuenta.largo .barra span{background:var(--largo)} .cuenta.corto .barra span{background:var(--corto)}
+.barra em{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--tinta)}
+.cuenta .chico{font-size:13px;color:var(--grafito);margin:6px 0 0}
+.alerta{margin-top:12px;padding:10px 14px;border-radius:5px;border:1.5px solid var(--pierde);background:color-mix(in srgb,var(--pierde) 12%,var(--hoja));font-size:15px}
+.diario{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px;font-variant-numeric:tabular-nums}
+.diario th,.diario td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--regla);white-space:nowrap}
+.diario th:first-child,.diario td:first-child{text-align:left}
+.diario th{font-weight:700;color:var(--grafito)}
+.diario tr:last-child td{background:color-mix(in srgb,var(--marcador) 28%,transparent)}
+.apal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.dato{border-top:1.5px solid var(--tinta);padding-top:6px}
+.dato b{display:block;font-family:var(--f-titulo);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+.dato span{font-size:13px;color:var(--grafito)}
+@media (max-width:620px){.cuentas{grid-template-columns:minmax(0,1fr)}.apal{grid-template-columns:minmax(0,1fr)}}
+
+/* Lección 5 y 6: clasificar y preguntas */
+.casos{display:grid;gap:10px;margin-top:14px}
+.caso{border:1px solid var(--regla);border-radius:6px;padding:12px 14px;background:var(--hoja)}
+.caso p{margin:0 0 8px}
+.caso .fb{margin:8px 0 0;font-size:15px}
+.ok{color:var(--gana);font-weight:700} .no{color:var(--pierde);font-weight:700}
+.caso .btn:disabled{opacity:1;cursor:default;color:var(--grafito);border-color:var(--regla)}
+.caso .btn.acierto:disabled{color:var(--tinta);border-color:var(--gana)}
+.caso .btn.error:disabled{color:var(--tinta);border-color:var(--pierde)}
+.btn.acierto{background:color-mix(in srgb,var(--gana) 22%,transparent);border-color:var(--gana)}
+.btn.error{background:color-mix(in srgb,var(--pierde) 18%,transparent);border-color:var(--pierde)}
+.puntaje{margin-top:14px;font-weight:700}
+.glosario{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0 24px;margin:14px 0 0}
+.glosario div{padding:10px 0;border-top:1px solid var(--regla)}
+.glosario dt{font-weight:700}
+.glosario dd{margin:2px 0 0;font-size:15px;color:var(--grafito)}
+footer{margin-top:48px;padding-top:14px;border-top:1px solid var(--regla);color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+  <nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+
+  <header class="portada">
+    <h1>Qué es un contrato de futuros</h1>
+    <p>Un futuro es una promesa: hoy dos personas acuerdan el precio de algo que se entregará más adelante. En seis lecciones cortas vas a mover precios, ver quién gana y quién pierde, y entender por qué la bolsa cobra y paga todos los días.</p>
+    <ol class="indice" aria-label="Lecciones">
+      <li><a href="#trato"><b>1</b>El trato del café</a></li>
+      <li><a href="#lados"><b>2</b>Comprador y vendedor</a></li>
+      <li><a href="#bolsa"><b>3</b>La bolsa en el medio</a></li>
+      <li><a href="#diaria"><b>4</b>Cuentas todos los días</a></li>
+      <li><a href="#usos"><b>5</b>Para qué se usan</a></li>
+      <li><a href="#repaso"><b>6</b>Repaso</a></li>
+    </ol>
+  </header>
+
+  <!-- 1 -->
+  <section class="leccion" id="trato" aria-labelledby="h1">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">1</span><h2 id="h1">El trato del café</h2></div>
+    <div class="texto">
+      <p>En febrero, una caficultora sabe que en junio tendrá 1.000 kilos de café para vender, y una tostadora sabe que en junio necesitará comprarlos. Ninguna de las dos sabe cuál será el precio en junio, y esa incertidumbre les preocupa.</p>
+      <p>Entonces firman un trato: <b>en junio, la caficultora entrega 1.000 kilos y la tostadora paga 10 dólares por kilo</b>, pase lo que pase con el precio del mercado. Ese acuerdo de precio hoy para una entrega futura es la idea de un contrato de futuros.</p>
+    </div>
+    <div class="panel">
+      <div class="control">
+        <label for="c-precio">Precio del café en junio</label>
+        <input id="c-precio" type="range" min="6" max="14" step="0.5" value="12">
+        <output id="c-precio-o" for="c-precio"></output>
+      </div>
+      <div class="trato">
+        <div class="parte largo">
+          <h3>Tostadora</h3>
+          <p class="rol">Se comprometió a comprar: está en el lado <b>comprador</b></p>
+          <dl>
+            <div><dt>Paga con el contrato</dt><dd id="c-t-paga"></dd></div>
+            <div><dt>Habría pagado sin contrato</dt><dd id="c-t-sin"></dd></div>
+          </dl>
+          <div class="resultado" id="c-t-res"></div>
+        </div>
+        <div class="parte corto">
+          <h3>Caficultora</h3>
+          <p class="rol">Se comprometió a vender: está en el lado <b>vendedor</b></p>
+          <dl>
+            <div><dt>Recibe con el contrato</dt><dd id="c-c-recibe"></dd></div>
+            <div><dt>Habría recibido sin contrato</dt><dd id="c-c-sin"></dd></div>
+          </dl>
+          <div class="resultado" id="c-c-res"></div>
+        </div>
+      </div>
+      <p class="suma" id="c-suma" aria-live="polite"></p>
+    </div>
+    <p class="clave">Las dos saben desde febrero cuánto van a pagar o recibir. El contrato no adivina el precio: elimina la sorpresa. Lo que una gana frente al mercado, la otra lo deja de ganar.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="leccion" id="lados" aria-labelledby="h2">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">2</span><h2 id="h2">Comprador y vendedor</h2></div>
+    <div class="texto">
+      <p>En la bolsa no hace falta tener café ni necesitarlo para entrar en un futuro. Cualquiera puede tomar uno de los dos lados:</p>
+      <p><b style="color:var(--largo)">Comprador o largo:</b> gana si el precio sube por encima del precio pactado. <b style="color:var(--corto)">Vendedor o corto:</b> gana si el precio baja. Por cada contrato hay exactamente un comprador y un vendedor, así que la ganancia de uno es la pérdida del otro.</p>
+    </div>
+    <div class="panel">
+      <div class="botones" role="group" aria-label="Qué lado resaltar">
+        <button class="btn" type="button" data-lado="ambos" aria-pressed="true">Ver los dos lados</button>
+        <button class="btn" type="button" data-lado="largo" aria-pressed="false">Solo comprador</button>
+        <button class="btn" type="button" data-lado="corto" aria-pressed="false">Solo vendedor</button>
+      </div>
+      <div class="control">
+        <label for="l-pactado">Precio pactado</label>
+        <input id="l-pactado" type="range" min="8" max="12" step="0.5" value="10">
+        <output id="l-pactado-o" for="l-pactado"></output>
+      </div>
+      <div class="control">
+        <label for="l-final">Precio al vencer</label>
+        <input id="l-final" type="range" min="6" max="14" step="0.25" value="11.5">
+        <output id="l-final-o" for="l-final"></output>
+      </div>
+      <svg class="grafico" id="l-svg" role="img" aria-label="Ganancia o pérdida del comprador y del vendedor según el precio al vencer"></svg>
+      <div class="leyenda"><span><i style="background:var(--largo)"></i>Comprador (largo)</span><span><i style="background:var(--corto)"></i>Vendedor (corto)</span><span>Por un contrato de 1.000 kilos</span></div>
+      <p class="nota" id="l-txt" aria-live="polite"></p>
+    </div>
+    <p class="clave">Las dos rectas son un espejo. Si sumas lo que gana el comprador y lo que gana el vendedor, siempre da cero: un futuro no crea dinero, lo pasa de un lado al otro.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="leccion" id="bolsa" aria-labelledby="h3">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">3</span><h2 id="h3">La bolsa en el medio</h2></div>
+    <div class="texto">
+      <p>El trato del café era privado: las dos partes inventaron las condiciones y cada una dependía de que la otra cumpliera. Ese tipo de acuerdo se llama <b>contrato a plazo</b> o <i>forward</i>.</p>
+      <p>Un <b>futuro</b> es el mismo trato pero estandarizado y negociado en una bolsa. Todos los contratos de un producto son idénticos, y entre comprador y vendedor se pone una <b>cámara de compensación</b> que garantiza que cada uno cobre lo suyo.</p>
+    </div>
+    <div class="panel">
+      <div class="botones" role="group" aria-label="Tipo de contrato">
+        <button class="btn" type="button" data-tipo="plazo" aria-pressed="false">Acuerdo privado</button>
+        <button class="btn" type="button" data-tipo="futuro" aria-pressed="true">Futuro en bolsa</button>
+      </div>
+      <svg class="grafico" id="b-svg" viewBox="0 0 640 170" role="img" aria-labelledby="b-desc"><desc id="b-desc"></desc></svg>
+      <div class="tabla-scroll">
+        <table class="comparar">
+          <thead><tr><th scope="col"></th><th scope="col">Acuerdo privado</th><th scope="col">Futuro en bolsa</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Condiciones</th><td>Las pactan las partes</td><td>Iguales para todos: tamaño, calidad, fecha</td></tr>
+            <tr><th scope="row">Si la otra parte no paga</th><td>Pierdes tú</td><td>Responde la cámara de compensación</td></tr>
+            <tr><th scope="row">Salir antes de la fecha</th><td>Difícil, hay que renegociar</td><td>Basta con hacer la operación contraria</td></tr>
+            <tr><th scope="row">Pagos</th><td>Todo al final</td><td>Ganancias y pérdidas cada día</td></tr>
+            <tr><th scope="row">Entrega</th><td>Casi siempre física</td><td>La mayoría se cierra antes o se liquida en dinero</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="clave">Gracias a la estandarización, un contrato se puede vender a otra persona en cualquier momento. Por eso casi nadie llega a la fecha de entrega: compra y vende el contrato, y se queda con la diferencia.</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="leccion" id="diaria" aria-labelledby="h4">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">4</span><h2 id="h4">Cuentas todos los días</h2></div>
+    <div class="texto">
+      <p>Para que la cámara pueda garantizar los pagos, cada parte deja un depósito al entrar, llamado <b>margen inicial</b>. Después, cada día, la bolsa compara el precio de cierre con el del día anterior y <b>pasa el dinero del que pierde al que gana</b>. A esto se le llama liquidación diaria.</p>
+      <p>En este ejemplo el contrato es sobre un índice bursátil y cada punto vale 5 dólares. Las dos partes entran a 5.000 puntos y depositan 1.500 dólares cada una. Avanza día por día y mira cómo se mueven las cuentas.</p>
+    </div>
+    <div class="panel">
+      <div class="cuentas">
+        <div class="cuenta largo">
+          <h3>Cuenta del comprador</h3>
+          <div class="saldo" id="d-saldo-l"></div>
+          <div class="barra" aria-hidden="true"><span id="d-barra-l"></span><em id="d-mant-l"></em></div>
+          <p class="chico">La raya marca el margen de mantenimiento: 1.200 dólares</p>
+        </div>
+        <div class="cuenta corto">
+          <h3>Cuenta del vendedor</h3>
+          <div class="saldo" id="d-saldo-c"></div>
+          <div class="barra" aria-hidden="true"><span id="d-barra-c"></span><em id="d-mant-c"></em></div>
+          <p class="chico">La raya marca el margen de mantenimiento: 1.200 dólares</p>
+        </div>
+      </div>
+      <div class="alerta" id="d-alerta" hidden role="status"></div>
+      <div class="botones">
+        <button class="btn lleno" type="button" id="d-dia">Avanzar un día</button>
+        <button class="btn" type="button" id="d-sube">Día de subida fuerte</button>
+        <button class="btn" type="button" id="d-baja">Día de caída fuerte</button>
+        <button class="btn" type="button" id="d-reiniciar">Empezar de nuevo</button>
+      </div>
+      <div class="tabla-scroll">
+        <table class="diario">
+          <thead><tr><th scope="col">Día</th><th scope="col">Cierre</th><th scope="col">Cambio</th><th scope="col">Pasa al comprador</th><th scope="col">Comprador</th><th scope="col">Vendedor</th></tr></thead>
+          <tbody id="d-tabla"></tbody>
+        </table>
+      </div>
+      <h3 style="margin:22px 0 0;font-size:17px">El efecto palanca</h3>
+      <div class="apal">
+        <div class="dato"><b id="a-nocional"></b><span>Valor que controla un contrato al precio actual</span></div>
+        <div class="dato"><b>1.500 USD</b><span>Lo que se depositó para controlarlo</span></div>
+        <div class="dato"><b id="a-veces"></b><span>Veces que el valor controlado supera el depósito</span></div>
+      </div>
+      <p class="nota" id="a-txt"></p>
+    </div>
+    <p class="clave">El margen no es el precio del contrato: es una garantía. Como con poco dinero se controla mucho, un movimiento pequeño del índice es un movimiento grande para tu cuenta, en ganancia o en pérdida.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="leccion" id="usos" aria-labelledby="h5">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">5</span><h2 id="h5">Para qué se usan</h2></div>
+    <div class="texto">
+      <p>Hay dos grandes motivos para entrar en un futuro. La <b>cobertura</b> es protegerse de un precio que ya te afecta, como la caficultora y la tostadora. La <b>especulación</b> es buscar ganancia apostando a que el precio subirá o bajará, sin tener nada que proteger. Los especuladores son útiles: aportan la otra mitad de cada contrato.</p>
+      <p>Clasifica cada caso:</p>
+    </div>
+    <div class="casos" id="casos"></div>
+    <p class="puntaje" id="casos-puntaje" aria-live="polite"></p>
+  </section>
+
+  <!-- 6 -->
+  <section class="leccion" id="repaso" aria-labelledby="h6">
+    <div class="leccion-cab"><span class="leccion-num" aria-hidden="true">6</span><h2 id="h6">Repaso</h2></div>
+    <div class="texto"><p>Cinco preguntas para comprobar lo que quedó. Cada respuesta trae su explicación.</p></div>
+    <div class="casos" id="preguntas"></div>
+    <p class="puntaje" id="preg-puntaje" aria-live="polite"></p>
+    <div class="botones"><button class="btn" type="button" id="preg-reiniciar">Responder de nuevo</button></div>
+
+    <h3 style="margin:36px 0 0;font-family:var(--f-titulo);font-size:24px">Vocabulario</h3>
+    <dl class="glosario">
+      <div><dt>Contrato de futuros</dt><dd>Acuerdo estandarizado, negociado en bolsa, para comprar o vender algo en una fecha futura a un precio fijado hoy.</dd></div>
+      <div><dt>Subyacente</dt><dd>Lo que se negocia en el contrato: café, petróleo, un índice bursátil, una moneda.</dd></div>
+      <div><dt>Largo</dt><dd>Posición compradora. Gana si el precio sube.</dd></div>
+      <div><dt>Corto</dt><dd>Posición vendedora. Gana si el precio baja.</dd></div>
+      <div><dt>Vencimiento</dt><dd>Fecha en que el contrato termina y se entrega o se liquida.</dd></div>
+      <div><dt>Cámara de compensación</dt><dd>Entidad que se pone en medio de cada operación y garantiza los pagos.</dd></div>
+      <div><dt>Margen inicial</dt><dd>Depósito de garantía que se deja al abrir la posición.</dd></div>
+      <div><dt>Margen de mantenimiento</dt><dd>Saldo mínimo que debe quedar en la cuenta. Por debajo llega un llamado de margen.</dd></div>
+      <div><dt>Liquidación diaria</dt><dd>Paso diario de dinero del que pierde al que gana según el precio de cierre.</dd></div>
+      <div><dt>Apalancamiento</dt><dd>Controlar un valor grande con un depósito pequeño. Multiplica ganancias y pérdidas.</dd></div>
+      <div><dt>Cobertura</dt><dd>Usar un futuro para protegerse de un precio que ya te afecta.</dd></div>
+      <div><dt>Especulación</dt><dd>Usar un futuro para buscar ganancia con el movimiento del precio.</dd></div>
+    </dl>
+  </section>
+
+  <footer>Material de estudio personal con cifras simplificadas. Los márgenes reales los fija cada bolsa y cambian con el tiempo. No es asesoría financiera.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var $ = function (s) { return document.querySelector(s); };
+  var KILOS = 1000;
+  function usd(v, dec) {
+    var d = dec == null ? 0 : dec;
+    var s = Math.abs(v).toLocaleString("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
+    return (v < 0 ? "−" : "") + s + " USD";
+  }
+  function conSigno(v, dec) { return (v > 0 ? "+" : "") + usd(v, dec); }
+  function el(tag, attrs, padre) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (padre) padre.appendChild(e);
+    return e;
+  }
+  function texto(padre, x, y, s, clase, ancla) {
+    var t = el("text", { x: x, y: y, "class": clase || "g-texto", "text-anchor": ancla || "start" }, padre);
+    t.textContent = s; return t;
+  }
+  function limpiar(svg) { Array.prototype.slice.call(svg.childNodes).forEach(function (n) { if (n.nodeName !== "desc") svg.removeChild(n); }); }
+  function claseValor(v) { return v > 0 ? "gana" : v < 0 ? "pierde" : ""; }
+  function anchoDe(svg) { return Math.max(300, Math.round(svg.parentNode.clientWidth - 36)); }
+
+  /* ---------- 1. El trato del café ---------- */
+  var PACTO = 10;
+  function trato() {
+    var p = parseFloat($("#c-precio").value);
+    $("#c-precio-o").textContent = usd(p, 2) + "/kg";
+    var conContrato = PACTO * KILOS, sinContrato = p * KILOS;
+    var gananciaT = sinContrato - conContrato;      // la tostadora ahorra si el mercado sube
+    var gananciaC = conContrato - sinContrato;      // la caficultora gana si el mercado baja
+    $("#c-t-paga").textContent = usd(conContrato);
+    $("#c-t-sin").textContent = usd(sinContrato);
+    $("#c-c-recibe").textContent = usd(conContrato);
+    $("#c-c-sin").textContent = usd(sinContrato);
+    function res(nodo, v, siGana, siPierde) {
+      nodo.className = "resultado " + claseValor(v);
+      nodo.textContent = v === 0 ? "Quedan igual que el mercado" : (v > 0 ? siGana : siPierde) + " " + usd(Math.abs(v));
+    }
+    res($("#c-t-res"), gananciaT, "Ahorra", "Paga de más");
+    res($("#c-c-res"), gananciaC, "Gana", "Deja de ganar");
+    var s = gananciaT + gananciaC;
+    $("#c-suma").textContent = p === PACTO
+      ? "El mercado quedó justo en el precio pactado: ninguna gana ni pierde frente al mercado."
+      : "Lo que gana una frente al mercado es exactamente lo que deja de ganar la otra: " + conSigno(gananciaT) + " y " + conSigno(gananciaC) + " suman " + usd(s) + ".";
+  }
+  $("#c-precio").addEventListener("input", trato);
+  trato();
+
+  /* ---------- 2. Comprador y vendedor ---------- */
+  var lado = "ambos";
+  function lados() {
+    var svg = $("#l-svg");
+    limpiar(svg);
+    var pactado = parseFloat($("#l-pactado").value), final = parseFloat($("#l-final").value);
+    $("#l-pactado-o").textContent = usd(pactado, 2);
+    $("#l-final-o").textContent = usd(final, 2);
+    var W = anchoDe(svg), H = W < 520 ? 240 : 280, pad = { l: 70, r: 16, t: 14, b: 34 };
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var x0 = 6, x1 = 14, ymax = 6000;
+    function X(p) { return pad.l + (p - x0) / (x1 - x0) * (W - pad.l - pad.r); }
+    function Y(v) { return pad.t + (ymax - v) / (2 * ymax) * (H - pad.t - pad.b); }
+    [-6000, -3000, 0, 3000, 6000].forEach(function (v) {
+      el("line", { x1: pad.l, x2: W - pad.r, y1: Y(v), y2: Y(v), "class": v === 0 ? "g-cero" : "g-guia" }, svg);
+      texto(svg, pad.l - 8, Y(v) + 4, (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toLocaleString("es-CO"), "g-texto", "end");
+    });
+    for (var p = 6; p <= 14; p += 2) texto(svg, X(p), H - 12, p + " USD", "g-texto", "middle");
+    el("line", { x1: X(pactado), x2: X(pactado), y1: pad.t, y2: H - pad.b, "class": "g-pactado" }, svg);
+    texto(svg, X(pactado) + 4, pad.t + 12, "pactado", "g-texto");
+    var cl = lado === "corto" ? " g-tenue" : "", cc = lado === "largo" ? " g-tenue" : "";
+    el("line", { x1: X(x0), y1: Y((x0 - pactado) * KILOS), x2: X(x1), y2: Y((x1 - pactado) * KILOS), "class": "g-largo" + cl }, svg);
+    el("line", { x1: X(x0), y1: Y((pactado - x0) * KILOS), x2: X(x1), y2: Y((pactado - x1) * KILOS), "class": "g-corto" + cc }, svg);
+    el("line", { x1: X(final), x2: X(final), y1: pad.t, y2: H - pad.b, "class": "g-vertical" }, svg);
+    var gl = (final - pactado) * KILOS, gc = -gl;
+    if (lado !== "corto") el("circle", { cx: X(final), cy: Y(gl), r: 7, fill: "var(--largo)", stroke: "var(--hoja)", "stroke-width": 2 }, svg);
+    if (lado !== "largo") el("circle", { cx: X(final), cy: Y(gc), r: 7, fill: "var(--corto)", stroke: "var(--hoja)", "stroke-width": 2 }, svg);
+    var partes = [];
+    if (lado !== "corto") partes.push("el comprador " + (gl >= 0 ? "gana " : "pierde ") + usd(Math.abs(gl)));
+    if (lado !== "largo") partes.push("el vendedor " + (gc >= 0 ? "gana " : "pierde ") + usd(Math.abs(gc)));
+    $("#l-txt").textContent = "Si el precio termina en " + usd(final, 2) + " con un pacto de " + usd(pactado, 2) + ", " + partes.join(" y ") + (lado === "ambos" ? ". Suma: 0 USD." : ".");
+  }
+  ["#l-pactado", "#l-final"].forEach(function (s) { $(s).addEventListener("input", lados); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-lado]"), function (b) {
+    b.addEventListener("click", function () {
+      lado = b.getAttribute("data-lado");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-lado]"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      lados();
+    });
+  });
+  lados();
+
+  /* ---------- 3. La bolsa en el medio ---------- */
+  var tipo = "futuro";
+  function caja(svg, x, y, w, h, color, titulo, sub) {
+    el("rect", { x: x, y: y, width: w, height: h, rx: 6, fill: "var(--hoja)", stroke: color, "stroke-width": 2 }, svg);
+    texto(svg, x + w / 2, y + h / 2 - 2, titulo, "g-fuerte", "middle");
+    if (sub) texto(svg, x + w / 2, y + h / 2 + 16, sub, "g-texto", "middle");
+  }
+  function flecha(svg, x1, x2, y, etiqueta) {
+    el("line", { x1: x1, y1: y, x2: x2, y2: y, stroke: "var(--tinta)", "stroke-width": 1.6 }, svg);
+    var d = x2 > x1 ? 1 : -1;
+    el("path", { d: "M" + x2 + " " + y + " l" + (-8 * d) + " -5 v10 z", fill: "var(--tinta)" }, svg);
+    texto(svg, (x1 + x2) / 2, y - 8, etiqueta, "g-texto", "middle");
+  }
+  function flechaV(svg, x, y1, y2, etiqueta) {
+    el("line", { x1: x, y1: y1, x2: x, y2: y2, stroke: "var(--tinta)", "stroke-width": 1.6 }, svg);
+    var d = y2 > y1 ? 1 : -1;
+    el("path", { d: "M" + x + " " + y2 + " l-5 " + (-8 * d) + " h10 z", fill: "var(--tinta)" }, svg);
+    if (etiqueta) texto(svg, x + 10, (y1 + y2) / 2 + 4, etiqueta, "g-texto");
+  }
+  function bolsa() {
+    var svg = $("#b-svg"); limpiar(svg);
+    var angosto = svg.parentNode.clientWidth < 560;
+    if (tipo === "plazo") {
+      $("#b-desc").textContent = "Acuerdo privado: el comprador y el vendedor tratan directamente y cada uno depende del otro.";
+      if (angosto) {
+        svg.setAttribute("viewBox", "0 0 320 300");
+        caja(svg, 70, 10, 180, 64, "var(--largo)", "Comprador", "tostadora");
+        caja(svg, 70, 196, 180, 64, "var(--corto)", "Vendedor", "caficultora");
+        flechaV(svg, 130, 192, 78, "café");
+        flechaV(svg, 190, 78, 192, "dinero");
+        texto(svg, 160, 290, "Si una no cumple, la otra pierde.", "g-fuerte", "middle");
+      } else {
+        svg.setAttribute("viewBox", "0 0 640 170");
+        caja(svg, 20, 50, 170, 70, "var(--largo)", "Comprador", "tostadora");
+        caja(svg, 450, 50, 170, 70, "var(--corto)", "Vendedor", "caficultora");
+        flecha(svg, 446, 192, 72, "café al vencer");
+        flecha(svg, 192, 446, 104, "");
+        texto(svg, 320, 128, "dinero al vencer", "g-texto", "middle");
+        texto(svg, 320, 160, "Si una de las dos no cumple, la otra pierde.", "g-fuerte", "middle");
+      }
+    } else {
+      $("#b-desc").textContent = "Futuro en bolsa: la cámara de compensación queda en medio y es la contraparte de los dos.";
+      if (angosto) {
+        svg.setAttribute("viewBox", "0 0 320 400");
+        caja(svg, 70, 10, 180, 60, "var(--largo)", "Comprador", "");
+        caja(svg, 60, 150, 200, 80, "var(--tinta)", "Cámara de", "compensación");
+        caja(svg, 70, 310, 180, 60, "var(--corto)", "Vendedor", "");
+        flechaV(svg, 160, 74, 146, "garantía");
+        flechaV(svg, 160, 306, 234, "garantía");
+        texto(svg, 160, 394, "Cada uno trata con la cámara.", "g-fuerte", "middle");
+      } else {
+        svg.setAttribute("viewBox", "0 0 640 170");
+        caja(svg, 10, 50, 150, 70, "var(--largo)", "Comprador", "");
+        caja(svg, 240, 40, 160, 90, "var(--tinta)", "Cámara de", "compensación");
+        caja(svg, 480, 50, 150, 70, "var(--corto)", "Vendedor", "");
+        flecha(svg, 162, 236, 72, "garantía");
+        flecha(svg, 476, 404, 72, "garantía");
+        flecha(svg, 236, 162, 104, "");
+        flecha(svg, 404, 476, 104, "");
+        texto(svg, 320, 160, "Cada uno trata con la cámara, no con un desconocido.", "g-fuerte", "middle");
+      }
+    }
+    var col = tipo === "plazo" ? 1 : 2;
+    Array.prototype.forEach.call(document.querySelectorAll(".comparar tbody tr"), function (tr) {
+      Array.prototype.forEach.call(tr.querySelectorAll("td"), function (td, i) { td.classList.toggle("activo", i + 1 === col); });
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-tipo]"), function (b) {
+    b.addEventListener("click", function () {
+      tipo = b.getAttribute("data-tipo");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-tipo]"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      bolsa();
+    });
+  });
+  bolsa();
+
+  /* ---------- 4. Liquidación diaria ---------- */
+  var MULT = 5, ENTRADA = 5000, MARGEN = 1500, MANT = 1200, TOPE = 3000;
+  var semilla = 11, dias;
+  function azar() { semilla = (semilla * 16807) % 2147483647; return (semilla - 1) / 2147483646; }
+  function normal() { var u = azar() || 1e-9, v = azar(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function reiniciar() {
+    semilla = 11;
+    dias = [{ dia: 0, cierre: ENTRADA, cambio: 0, pasa: 0, l: MARGEN, c: MARGEN }];
+    diaria();
+  }
+  function avanzar(movPuntos) {
+    var ult = dias[dias.length - 1];
+    if (dias.length > 30) return;
+    var mov = movPuntos != null ? movPuntos : Math.round(normal() * 45);
+    var cierre = ult.cierre + mov;
+    var pasa = mov * MULT;
+    dias.push({ dia: ult.dia + 1, cierre: cierre, cambio: mov, pasa: pasa, l: ult.l + pasa, c: ult.c - pasa });
+    diaria();
+  }
+  function diaria() {
+    var ult = dias[dias.length - 1];
+    $("#d-saldo-l").textContent = usd(ult.l);
+    $("#d-saldo-c").textContent = usd(ult.c);
+    [["l", ult.l], ["c", ult.c]].forEach(function (par) {
+      var pct = Math.max(0, Math.min(100, par[1] / TOPE * 100));
+      $("#d-barra-" + par[0]).style.width = pct + "%";
+      $("#d-mant-" + par[0]).style.left = (MANT / TOPE * 100) + "%";
+    });
+    var cuerpo = $("#d-tabla"); cuerpo.textContent = "";
+    dias.slice(-6).forEach(function (d) {
+      var tr = document.createElement("tr");
+      [d.dia === 0 ? "Entrada" : "Día " + d.dia,
+       d.cierre.toLocaleString("es-CO"),
+       d.dia === 0 ? "" : (d.cambio > 0 ? "+" : d.cambio < 0 ? "−" : "") + Math.abs(d.cambio) + " pts",
+       d.dia === 0 ? "" : conSigno(d.pasa),
+       usd(d.l), usd(d.c)].forEach(function (v, i) {
+        var td = document.createElement("td"); td.textContent = v;
+        if (i === 3 && d.dia) td.className = claseValor(d.pasa);
+        tr.appendChild(td);
+      });
+      cuerpo.appendChild(tr);
+    });
+    var al = $("#d-alerta"), quien = [];
+    if (ult.l < MANT) quien.push({ n: "comprador", s: ult.l });
+    if (ult.c < MANT) quien.push({ n: "vendedor", s: ult.c });
+    if (quien.length) {
+      var q = quien[0];
+      al.hidden = false;
+      al.textContent = q.s <= 0
+        ? "La cuenta del " + q.n + " quedó en " + usd(q.s) + ". En la vida real la bolsa habría cerrado su posición mucho antes, y si el saldo queda negativo, la deuda es suya."
+        : "Llamado de margen al " + q.n + ": su cuenta bajó a " + usd(q.s) + ", por debajo del mantenimiento. Debe depositar " + usd(MARGEN - q.s) + " para volver al margen inicial, o el bróker cierra su posición.";
+    } else al.hidden = true;
+    var nocional = ult.cierre * MULT;
+    $("#a-nocional").textContent = usd(nocional);
+    $("#a-veces").textContent = (nocional / MARGEN).toFixed(1).replace(".", ",") + " veces";
+    var unoPct = nocional * 0.01;
+    $("#a-txt").textContent = "Si el índice se mueve solo 1 %, son " + Math.round(ult.cierre * 0.01) + " puntos, es decir " + usd(unoPct) + ": el " + Math.round(unoPct / MARGEN * 100) + " % del depósito, en un solo día.";
+    $("#d-dia").disabled = $("#d-sube").disabled = $("#d-baja").disabled = dias.length > 30;
+  }
+  $("#d-dia").addEventListener("click", function () { avanzar(); });
+  $("#d-sube").addEventListener("click", function () { avanzar(80); });
+  $("#d-baja").addEventListener("click", function () { avanzar(-80); });
+  $("#d-reiniciar").addEventListener("click", reiniciar);
+  reiniciar();
+
+  /* ---------- Tarjetas de preguntas (lecciones 5 y 6) ---------- */
+  function tarjetas(contenedor, lista, puntajeSel, nombre) {
+    var cont = $(contenedor), puntos = 0, respondidas = 0;
+    cont.textContent = "";
+    $(puntajeSel).textContent = "";
+    lista.forEach(function (q, qi) {
+      var c = document.createElement("div"); c.className = "caso";
+      var p = document.createElement("p"); p.textContent = (qi + 1) + ". " + q.p; c.appendChild(p);
+      var bs = document.createElement("div"); bs.className = "botones"; bs.style.marginTop = "0";
+      var fb = document.createElement("p"); fb.className = "fb"; fb.setAttribute("aria-live", "polite");
+      q.o.forEach(function (op, oi) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = op;
+        b.addEventListener("click", function () {
+          Array.prototype.forEach.call(bs.children, function (x, xi) { x.disabled = true; if (xi === q.a) x.classList.add("acierto"); });
+          var bien = oi === q.a;
+          if (!bien) b.classList.add("error"); else puntos++;
+          respondidas++;
+          fb.textContent = "";
+          var s = document.createElement("span"); s.className = bien ? "ok" : "no"; s.textContent = bien ? "Correcto. " : "No exactamente. ";
+          fb.appendChild(s); fb.appendChild(document.createTextNode(q.e));
+          $(puntajeSel).textContent = nombre + ": " + puntos + " de " + lista.length + (respondidas === lista.length ? ", terminado." : "");
+        });
+        bs.appendChild(b);
+      });
+      c.appendChild(bs); c.appendChild(fb); cont.appendChild(c);
+    });
+  }
+  var CASOS = [
+    { p: "Una aerolínea compra futuros de combustible porque teme que el precio suba en los próximos meses.", o: ["Cobertura", "Especulación"], a: 0, e: "Ya gasta combustible: el futuro fija su costo y la protege de una subida." },
+    { p: "Una persona vende futuros del índice porque cree que la bolsa va a caer, sin tener acciones.", o: ["Cobertura", "Especulación"], a: 1, e: "No tiene nada que proteger: busca ganar si el índice baja." },
+    { p: "Una exportadora colombiana que cobrará en dólares en tres meses vende futuros de dólar.", o: ["Cobertura", "Especulación"], a: 0, e: "Recibirá dólares: si el dólar baja, lo que pierde al cambiarlos lo gana con el futuro." },
+    { p: "Un estudiante compra un futuro de café porque leyó que habrá sequía, pero no toma café ni lo vende.", o: ["Cobertura", "Especulación"], a: 1, e: "Su interés es solo el movimiento del precio." },
+    { p: "Una persona con una cartera grande de acciones vende futuros del índice antes de unas elecciones.", o: ["Cobertura", "Especulación"], a: 0, e: "Si el mercado cae, lo que pierden sus acciones lo compensa el futuro vendido." }
+  ];
+  tarjetas("#casos", CASOS, "#casos-puntaje", "Casos bien clasificados");
+
+  var PREGUNTAS = [
+    { p: "Compras un futuro a 10 USD el kilo por 1.000 kilos y al vencer el precio es 8 USD. ¿Qué pasa?", o: ["Ganas 2.000 USD", "Pierdes 2.000 USD", "No pasa nada"], a: 1, e: "Estás en el lado comprador: pagas 10 por algo que vale 8. (8 − 10) × 1.000 = −2.000 USD." },
+    { p: "¿Quién garantiza que el vendedor cobre si el comprador no paga?", o: ["El comprador, con su palabra", "La cámara de compensación", "Nadie, es riesgo del vendedor"], a: 1, e: "La cámara se pone en medio de cada operación y responde por los pagos." },
+    { p: "¿Qué es el margen inicial?", o: ["El precio total del contrato", "Un depósito de garantía", "La comisión del bróker"], a: 1, e: "Es una garantía para cubrir pérdidas diarias. No es lo que cuesta el contrato." },
+    { p: "Cada punto vale 5 USD y el índice cae 40 puntos en un día. ¿Qué pasa con la cuenta del vendedor?", o: ["Recibe 200 USD", "Paga 200 USD", "Recibe 40 USD"], a: 0, e: "El vendedor gana cuando el precio baja: 40 × 5 = 200 USD que pasan del comprador al vendedor." },
+    { p: "¿Por qué casi nadie recibe el producto físico de un futuro?", o: ["Porque está prohibido", "Porque cierran la posición antes del vencimiento", "Porque la bolsa se queda con el producto"], a: 1, e: "Como los contratos son estándar, se pueden vender en cualquier momento. La mayoría sale antes y se queda con la diferencia en dinero." }
+  ];
+  tarjetas("#preguntas", PREGUNTAS, "#preg-puntaje", "Aciertos");
+  $("#preg-reiniciar").addEventListener("click", function () { tarjetas("#preguntas", PREGUNTAS, "#preg-puntaje", "Aciertos"); });
+
+  var espera;
+  window.addEventListener("resize", function () { clearTimeout(espera); espera = setTimeout(function () { lados(); bolsa(); }, 120); });
+})();
+</script>
+</body>
+</html>
