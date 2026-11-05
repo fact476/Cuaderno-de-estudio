@@ -1,8 +1,8 @@
-# Laboratorio de mercados
+# Cuaderno de estudio
 
-Sitio estático en GitHub Pages con tutoriales interactivos en español para estudiar
+Sitio estático en GitHub Pages con tutoriales interactivos en español. Empezó con
 trading (acciones, ETFs, futuros), gestión del riesgo, automatización, IA aplicada y
-seguridad informática defensiva. Publicado en https://fact476.github.io/estudio-trading/
+seguridad informática defensiva. Publicado en https://fact476.github.io/cuaderno/
 
 ## Cómo se alimenta el menú
 

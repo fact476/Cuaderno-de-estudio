@@ -1,9 +1,9 @@
-# Laboratorio de mercados
+# Cuaderno de estudio
 
-Plan de estudio personal de trading, futuros, gestión del riesgo, automatización, IA aplicada y
-seguridad informática, con tutoriales interactivos.
+Plan de estudio personal con tutoriales interactivos. Por ahora: trading, futuros, gestión del riesgo,
+automatización, IA aplicada y seguridad informática. Se pueden agregar capítulos de cualquier tema en `rutas.json`.
 
-**Sitio:** https://fact476.github.io/estudio-trading/
+**Sitio:** https://fact476.github.io/cuaderno/
 
 ## Estructura
 
