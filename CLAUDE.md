@@ -21,6 +21,8 @@ seguridad informática defensiva. Publicado en https://fact476.github.io/Cuadern
 2. Llenar las etiquetas meta. Incluir el enlace `../index.html` para volver al menú.
 3. Correr `python3 scripts/generar_catalogo.py` y revisar que no salgan avisos.
 4. Commit y push a `main`. La página se actualiza sola en uno o dos minutos.
+5. Agregar una fila (fecha, capítulo, tutorial con enlace) a la bitácora de la página de Notion
+   "Cuaderno de estudio", en el hub Trading, y actualizar ahí el siguiente tema.
 
 Para agregar o reordenar temas del plan, editar `rutas.json`. No editar `catalogo.json` a mano.
 
