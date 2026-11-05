@@ -3,7 +3,7 @@
 Plan de estudio personal con tutoriales interactivos. Por ahora: trading, futuros, gestión del riesgo,
 automatización, IA aplicada y seguridad informática. Se pueden agregar capítulos de cualquier tema en `rutas.json`.
 
-**Sitio:** https://fact476.github.io/cuaderno/
+**Sitio:** https://fact476.github.io/Cuaderno-de-estudio/
 
 ## Estructura
 
