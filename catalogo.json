@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:20:15+00:00",
+  "generado": "2026-11-06T01:26:42+00:00",
   "totales": {
     "temas": 35,
-    "listos": 22,
+    "listos": 27,
     "progreso": 0
   },
   "rutas": [
@@ -205,31 +205,41 @@
           "titulo": "Datos de mercado con Python y pandas",
           "archivo": "automatizacion/datos-con-pandas.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué es un DataFrame de precios y un laboratorio para ver, línea por línea, qué hacen pct_change, rolling, los filtros y resample con una tabla de ejemplo."
         },
         {
           "titulo": "Conectarse a la API de un bróker",
           "archivo": "automatizacion/api-del-broker.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Cómo conversa un programa con el bróker: conexión, datos, órdenes y eventos, en un simulador que también muestra rechazos y desconexiones, más un esqueleto de código seguro."
         },
         {
           "titulo": "Backtesting sin engañarse: sesgos comunes",
           "archivo": "automatizacion/sesgos-del-backtest.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Un laboratorio donde activas las trampas típicas de un backtest (mirar el futuro, ignorar costos, usar solo sobrevivientes) y ves cuánto inflan el resultado."
         },
         {
           "titulo": "Sobreajuste y validación fuera de muestra",
           "archivo": "automatizacion/sobreajuste.html",
           "nivel": "avanzado",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Cómo un modelo o una estrategia memoriza el ruido del pasado, por qué el mejor parámetro de la prueba decepciona después y cómo se valida con datos fuera de muestra y walk-forward."
         },
         {
           "titulo": "Del paper trading a la cuenta real",
           "archivo": "automatizacion/paper-a-real.html",
           "nivel": "avanzado",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué cambia entre la cuenta simulada y la real, un simulador de cuánto se come el deslizamiento a una estrategia y un plan por etapas con criterios para avanzar o detenerse."
         }
       ]
     },

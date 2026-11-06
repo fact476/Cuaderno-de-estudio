@@ -187,7 +187,7 @@ function grafico(svg,o){
   let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
   if(!(hi>lo)){hi=lo+1;lo=lo-1}
   if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
-  const X=i=>pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const soloB=o.barras&&!o.velas&&!series.length;const X=i=>soloB?pl+(i+0.5)*(W-pl-pr)/n:pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
   const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
   const dd=o.decimales!=null?o.decimales:decs(hi-lo);
   const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();

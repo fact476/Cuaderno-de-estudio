@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sobreajuste y validación fuera de muestra</title>
+<meta name="description" content="Cómo un modelo o una estrategia memoriza el ruido del pasado, por qué el mejor parámetro de la prueba decepciona después y cómo se valida con datos fuera de muestra y walk-forward.">
+<meta name="tutorial:nivel" content="avanzado">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --azul:#1b62ad; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--azul:#62a6ef;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px;overflow-wrap:break-word}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a,.siguiente a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(36px,7vw,68px);line-height:.98;letter-spacing:-.03em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:66ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+@media (max-width:480px){.leccion{padding:16px 14px}body{font-size:16px}}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.aviso{border-left:4px solid var(--baja);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--suave);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--suave);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+select,input[type=number],input[type=text]{font:inherit;font-size:16px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--regla);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--tinta);flex:none;margin-top:3px}
+.ctl{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr) 78px;gap:6px 12px;align-items:center;margin:10px 0;font-size:15px}
+.ctl b{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+@media (max-width:520px){.ctl{grid-template-columns:minmax(0,1fr) 78px}.ctl>span:first-child{grid-column:1 / -1}.ctl input[type=range]{grid-column:1}}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 14px;margin:12px 0}
+.campos label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--grafito)}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.dos{grid-template-columns:minmax(0,1fr)}}
+.grafico{display:block;width:100%;height:auto;margin:10px 0}
+svg text{font-family:var(--f-texto)}
+.botones,.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px;min-width:0}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:19px;overflow-wrap:anywhere}
+.medidor b.ok,.ok{color:var(--alza)}
+.medidor b.mal,.mal{color:var(--baja)}
+.ok,.mal{font-weight:700}
+.tabla-scroll{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.tarjeta{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:12px 14px;min-width:0}
+.tarjeta h3{margin-top:0}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--grafito)}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.lista-chk{list-style:none;padding:0}
+.lista-chk li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--regla)}
+.etiqueta{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--suave)}
+.etiqueta.ok{background:var(--alza);color:var(--hoja)}
+.etiqueta.mal{background:var(--baja);color:var(--hoja)}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+.siguiente{margin-top:28px;font-size:17px}
+footer{margin-top:28px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+<nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+<h1>Sobreajuste y validación fuera de muestra</h1>
+<p>Sobreajustar es como prepararse para un examen memorizando las respuestas del examen del año pasado: sacas 10 en ese examen y fallas en el nuevo. Una estrategia sobreajustada describe perfecto el pasado y no sirve para el futuro.</p>
+
+<section class="leccion" aria-labelledby="l1">
+  <h2 id="l1">1. Ver el sobreajuste con una curva</h2>
+  <p>Hay una relación real (suave) más ruido. Con los puntos llenos ajustas una curva; los puntos vacíos son datos nuevos que la curva no vio. Sube la complejidad de la curva:</p>
+  <label class="ctl"><span>Complejidad (grado)</span><input type="range" id="gr" min="0" max="9" step="1" value="2"><b id="grv"></b></label>
+  <svg id="g1" class="grafico" role="img" aria-labelledby="g1t"><title id="g1t">Puntos de entrenamiento y de prueba con la curva ajustada.</title></svg>
+  <div class="leyenda"><span><i class="sw" style="background:var(--azul)"></i>Datos de entrenamiento (●)</span><span><i class="sw" style="background:var(--baja)"></i>Datos nuevos (○)</span></div>
+  <div class="medidores">
+    <div class="medidor"><span>Error en entrenamiento</span><b id="m1a"></b></div>
+    <div class="medidor"><span>Error en datos nuevos</span><b id="m1b"></b></div>
+  </div>
+  <svg id="g1b" class="grafico" role="img" aria-labelledby="g1bt"><title id="g1bt">Error en entrenamiento y en datos nuevos según la complejidad.</title></svg>
+  <p class="clave">El error de entrenamiento siempre baja al subir la complejidad; con grado 9 pasa por todos los puntos. El error en datos nuevos baja al principio y después se dispara. Ese punto donde empieza a subir es donde empiezas a memorizar ruido.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l2">
+  <h2 id="l2">2. El mejor parámetro del pasado</h2>
+  <p>Una estrategia de cruce de medias se prueba con 288 combinaciones de parámetros en los primeros 400 días (dentro de muestra) y se elige la mejor. Después se mira qué hace en los 200 días siguientes, que no se usaron para elegir (fuera de muestra). El precio es aleatorio: no hay ninguna ventaja real que encontrar.</p>
+  <div class="botones"><button id="otra">Otro mercado aleatorio</button><button id="treinta">Repetir en 30 mercados</button></div>
+  <svg id="g2" class="grafico" role="img" aria-labelledby="g2t"><title id="g2t">Capital de la mejor combinación dentro y fuera de muestra.</title></svg>
+  <div class="medidores">
+    <div class="medidor"><span>Combinación elegida</span><b id="m2a"></b></div>
+    <div class="medidor"><span>Dentro de muestra: la elegida</span><b id="m2b"></b></div>
+    <div class="medidor"><span>Dentro de muestra: la mediana</span><b id="m2c"></b></div>
+    <div class="medidor"><span>Fuera de muestra: la elegida</span><b id="m2d"></b></div>
+    <div class="medidor"><span>Fuera de muestra: la mediana</span><b id="m2e"></b></div>
+  </div>
+  <p id="r2" class="caja" aria-live="polite"></p>
+  <p id="r2b" class="caja" aria-live="polite">Un solo mercado puede engañar. Pulsa «Repetir en 30 mercados» para ver el promedio.</p>
+  <p class="clave">Si pruebas cientos de combinaciones, alguna se verá excelente por pura suerte. Fuera de muestra esa suerte no se repite. Por eso un resultado solo cuenta si se mantiene con datos que no usaste para elegir.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l3">
+  <h2 id="l3">3. Walk-forward: optimizar y probar por turnos</h2>
+  <p>En vez de un solo corte, se repite el proceso: optimizas en una ventana, pruebas en la siguiente, avanzas y vuelves a empezar. El resultado final se arma solo con los tramos de prueba.</p>
+  <svg id="g3" class="grafico" viewBox="0 0 640 210" role="img" aria-labelledby="g3t"><title id="g3t">Ventanas de optimización y de prueba que avanzan en el tiempo.</title></svg>
+  <div class="leyenda"><span><i class="sw" style="background:var(--regla);height:10px"></i>Optimizar</span><span><i class="sw" style="background:var(--azul);height:10px"></i>Probar</span></div>
+</section>
+
+<section class="leccion" aria-labelledby="l4">
+  <h2 id="l4">4. Cómo defenderse</h2>
+  <ul>
+    <li><strong>Pocos parámetros.</strong> Cada parámetro extra es otra perilla para acomodarse al ruido.</li>
+    <li><strong>Datos guardados.</strong> Aparta una parte al inicio y no la mires hasta la prueba final. Si la usas para corregir, deja de ser fuera de muestra.</li>
+    <li><strong>Robustez.</strong> Si el parámetro 14 funciona pero el 13 y el 15 no, es suerte. Busca zonas amplias que funcionen.</li>
+    <li><strong>Muchas operaciones.</strong> Diez operaciones no prueban nada; cientos empiezan a decir algo.</li>
+    <li><strong>Una razón.</strong> Prefiere reglas que tengan una explicación de por qué deberían funcionar.</li>
+    <li><strong>Cuenta tus intentos.</strong> Si probaste 50 ideas, la mejor de las 50 está inflada por la selección.</li>
+  </ul>
+</section>
+
+<section class="leccion" aria-labelledby="repaso"><h2 id="repaso">Comprueba que entendiste</h2><div id="quiz"></div></section>
+<nav class="siguiente" aria-label="Siguiente tema">Siguiente tema: <a href="paper-a-real.html">Del paper trading a la cuenta real</a></nav>
+<footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=v=>getComputedStyle(document.documentElement).getPropertyValue("--"+v).trim();
+const val=id=>parseFloat($(id).value);
+const num=(n,d=0)=>Number(n).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=(n,d=0)=>(n<0?"−":"")+"US$ "+num(Math.abs(n),d);
+const pct=(n,d=1)=>num(n,d)+" %";
+const sgn=(n,d=0)=>(n>0?"+":n<0?"−":"")+num(Math.abs(n),d);
+const NS="http://www.w3.org/2000/svg";
+function S(tag,a,t){const e=document.createElementNS(NS,tag);for(const k in a)if(a[k]!==undefined&&a[k]!==null)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function limpiar(svg){[...svg.childNodes].forEach(n=>{if(!(n.nodeName&&n.nodeName.toLowerCase()==="title"))svg.removeChild(n)})}
+function enlazar(ids,fn){ids.forEach(id=>{const e=$(id);e.addEventListener(e.tagName==="BUTTON"?"click":"input",fn);if(e.tagName==="SELECT")e.addEventListener("change",fn)})}
+const redibujos=[];
+function alTema(fn){redibujos.push(fn)}
+try{window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>redibujos.forEach(f=>f()))}catch(e){}
+let anchoPrevio=window.innerWidth,tRes=null;window.addEventListener("resize",()=>{clearTimeout(tRes);tRes=setTimeout(()=>{if(Math.abs(window.innerWidth-anchoPrevio)>40){anchoPrevio=window.innerWidth;redibujos.forEach(f=>f())}},200)});
+function fz(svg,px){const vb=(svg.viewBox&&svg.viewBox.baseVal&&svg.viewBox.baseVal.width)||640;const cw=svg.getBoundingClientRect().width||vb;return Math.round(px*Math.max(1,vb/cw*0.8))}
+function azar(seed){let a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function caminata(n,o={}){const r=azar(o.seed||1);let p=o.inicio||100;const out=[p];for(let i=1;i<n;i++){p=Math.max(1,p*(1+((o.deriva||0)+normal(r)*(o.vol||1))/100));out.push(p)}return out}
+function velasSim(n,o={}){const r=azar(o.seed||1);let c=o.inicio||100;const out=[];for(let i=0;i<n;i++){const vol=(o.volDe?o.volDe(i):o.vol||1.2);const op=c*(1+normal(r)*vol*0.25/100);const cl=Math.max(1,op*(1+((o.deriva||0)+normal(r)*vol)/100));const h=Math.max(op,cl)*(1+r()*vol*0.6/100),l=Math.min(op,cl)*(1-r()*vol*0.6/100);const v=Math.round((o.volumen||1000)*(0.6+r()*0.8)*(1+Math.abs(cl-op)/op*40));out.push({o:op,h,l,c:cl,v});c=cl}return out}
+function sma(a,p){return a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((s,x)=>s+x,0)/p)}
+function ema(a,p){const k=2/(p+1);let e=null;return a.map((x,i)=>{if(x==null)return null;e=e==null?x:x*k+e*(1-k);return i<p-1?null:e})}
+function rsi(c,p=14){const out=[null];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];const up=Math.max(d,0),dn=Math.max(-d,0);if(i<=p){g+=up/p;l+=dn/p;out.push(i===p?(l===0?100:100-100/(1+g/l)):null)}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p;out.push(l===0?100:100-100/(1+g/l))}}return out}
+function rangoReal(v){return v.map((x,i)=>i===0?x.h-x.l:Math.max(x.h-x.l,Math.abs(x.h-v[i-1].c),Math.abs(x.l-v[i-1].c)))}
+function atr(v,p=14){const tr=rangoReal(v);const out=[];let a=null;tr.forEach((t,i)=>{if(i<p-1){out.push(null);return}if(a==null)a=tr.slice(0,p).reduce((s,x)=>s+x,0)/p;else a=(a*(p-1)+t)/p;out.push(a)});return out}
+function decs(r){return r<2?2:r<30?1:0}
+function grafico(svg,o){
+  limpiar(svg);
+  const cw=svg.getBoundingClientRect().width;const W=o.ancho||(cw>0?Math.max(320,Math.min(760,Math.round(cw))):640),H=o.alto||260,pl=o.pl||50,pr=o.pr||14,pt=o.pt||14,pb=o.pb||24;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  const series=o.series||[];const n=o.n||(o.velas?o.velas.length:(series[0]?series[0].d.length:(o.barras?o.barras.d.length:2)));
+  let vals=[];series.forEach(s=>s.d.forEach(x=>{if(x!=null&&isFinite(x))vals.push(x)}));
+  if(o.velas)o.velas.forEach(v=>{vals.push(v.h,v.l)});
+  if(o.barras)o.barras.d.forEach(x=>{if(x!=null)vals.push(x)});if(o.barras&&o.barras.cero!==false)vals.push(0);
+  (o.lineasH||[]).forEach(l=>vals.push(l.y));
+  let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
+  if(!(hi>lo)){hi=lo+1;lo=lo-1}
+  if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
+  const soloB=o.barras&&!o.velas&&!series.length;const X=i=>soloB?pl+(i+0.5)*(W-pl-pr)/n:pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
+  const dd=o.decimales!=null?o.decimales:decs(hi-lo);
+  const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();
+  ticks.forEach(t=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(t),y2:Y(t),stroke:regla,"stroke-width":1}));svg.appendChild(S("text",{x:pl-6,y:Y(t)+4,"text-anchor":"end","font-size":12,fill:graf},(o.fmtY||(v=>num(v,dd)))(t)))});
+  (o.bandas||[]).forEach(b=>svg.appendChild(S("rect",{x:X(b.i0),y:pt,width:Math.max(1,X(b.i1)-X(b.i0)),height:H-pt-pb,fill:b.color||C("suave"),opacity:b.opacidad||1})));
+  (o.etiquetasX||[]).forEach(e=>svg.appendChild(S("text",{x:X(e.i),y:H-6,"text-anchor":e.ancla||"middle","font-size":12,fill:graf},e.txt)));
+  if(o.barras){const bw=Math.max(1,(W-pl-pr)/n*0.7);o.barras.d.forEach((x,i)=>{if(x==null)return;const y0=Y(o.barras.base||0),y1=Y(x);const col=typeof o.barras.color==="function"?o.barras.color(i,x):(o.barras.color||graf);svg.appendChild(S("rect",{x:X(i)-bw/2,y:Math.min(y0,y1),width:bw,height:Math.max(0.5,Math.abs(y1-y0)),fill:col,opacity:o.barras.opacidad||1}))})}
+  if(o.velas){const bw=Math.max(1.5,(W-pl-pr)/n*0.62);o.velas.forEach((v,i)=>{const col=v.c>=v.o?alza:baja;svg.appendChild(S("line",{x1:X(i),x2:X(i),y1:Y(v.h),y2:Y(v.l),stroke:col,"stroke-width":1.2}));svg.appendChild(S("rect",{x:X(i)-bw/2,y:Y(Math.max(v.o,v.c)),width:bw,height:Math.max(1,Math.abs(Y(v.o)-Y(v.c))),fill:v.c>=v.o?C("hoja"):col,stroke:col,"stroke-width":1.2}))})}
+  series.forEach(s=>{let d="";let pen=false;s.d.forEach((y,i)=>{if(y==null||!isFinite(y)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1);pen=true});svg.appendChild(S("path",{d,fill:"none",stroke:s.color||tinta,"stroke-width":s.ancho||2.2,"stroke-dasharray":s.punteado?"6 5":null,"stroke-linejoin":"round","stroke-linecap":"round"}))});
+  (o.lineasH||[]).forEach(l=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(l.y),y2:Y(l.y),stroke:l.color||tinta,"stroke-width":l.ancho||1.5,"stroke-dasharray":l.punteado===false?null:"5 4"}));if(l.txt)svg.appendChild(S("text",{x:W-pr-4,y:Y(l.y)-5,"text-anchor":"end","font-size":12,"font-weight":700,fill:l.color||tinta},l.txt))});
+  (o.lineasV||[]).forEach(l=>{svg.appendChild(S("line",{x1:X(l.i),x2:X(l.i),y1:pt,y2:H-pb,stroke:l.color||graf,"stroke-width":1.5,"stroke-dasharray":"4 4"}));if(l.txt)svg.appendChild(S("text",{x:X(l.i)+(l.ancla==="end"?-4:4),y:pt+12,"text-anchor":l.ancla||"start","font-size":12,fill:l.color||graf},l.txt))});
+  (o.marcas||[]).forEach(m=>{const x=X(m.i),y=Y(m.y),col=m.color||tinta;if(m.forma==="arriba")svg.appendChild(S("polygon",{points:`${x},${y-2} ${x-6},${y+9} ${x+6},${y+9}`,fill:col}));else if(m.forma==="abajo")svg.appendChild(S("polygon",{points:`${x},${y+2} ${x-6},${y-9} ${x+6},${y-9}`,fill:col}));else svg.appendChild(S("circle",{cx:x,cy:y,r:m.r||5,fill:col,stroke:C("hoja"),"stroke-width":1.5}));if(m.txt)svg.appendChild(S("text",{x:x,y:m.forma==="abajo"?y-13:y+(m.forma==="arriba"?24:-10),"text-anchor":"middle","font-size":12,"font-weight":700,fill:col},m.txt))});
+  return{X,Y,W,H,pl,pr,pt,pb};
+}
+function quiz(id,preguntas){
+  const qz=$(id);if(!qz)return;
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> "+(p.pista||"Repasa la lección y vuelve a intentar.")}});
+      op.appendChild(b)});
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d)});
+}
+</script>
+<script>
+(function(){
+const r1=azar(21);const fv=x=>0.7*x+0.5*Math.sin(2.4*x);const P=[...Array(20)].map((_,i)=>{const x=-1+2*i/19;return{x,y:fv(x)+normal(r1)*0.22}});
+const idx=[...Array(20).keys()].sort(()=>r1()-0.5);const tr=idx.slice(0,10).map(i=>P[i]),te=idx.slice(10).map(i=>P[i]);
+function ajuste(pts,g){const m=g+1;const A=[...Array(m)].map(()=>Array(m+1).fill(0));pts.forEach(p=>{const pw=[...Array(m)].map((_,k)=>p.x**k);for(let a=0;a<m;a++){for(let b=0;b<m;b++)A[a][b]+=pw[a]*pw[b];A[a][m]+=pw[a]*p.y}});for(let a=0;a<m;a++)A[a][a]+=1e-10;
+  for(let c=0;c<m;c++){let mx=c;for(let r=c+1;r<m;r++)if(Math.abs(A[r][c])>Math.abs(A[mx][c]))mx=r;[A[c],A[mx]]=[A[mx],A[c]];for(let r=0;r<m;r++){if(r===c)continue;const f=A[r][c]/A[c][c];for(let k=c;k<=m;k++)A[r][k]-=f*A[c][k]}}return A.map((f,i)=>f[m]/f[i])}
+const evalp=(w,x)=>w.reduce((s,c,k)=>s+c*x**k,0);const mse=(w,pts)=>pts.reduce((s,p)=>s+(evalp(w,p.x)-p.y)**2,0)/pts.length;
+const errs=[...Array(10).keys()].map(g=>{const w=ajuste(tr,g);return[mse(w,tr),mse(w,te)]});
+function l1(){const g=val("gr");$("grv").textContent=num(g);const w=ajuste(tr,g);const xs=[...Array(101).keys()].map(i=>-1+i/50);
+  const G=grafico($("g1"),{series:[{d:xs.map(x=>Math.max(-2,Math.min(2,evalp(w,x)))),color:C("tinta"),ancho:2.4},{d:xs.map(fv),color:C("grafito"),ancho:1,punteado:true}],n:101,yMin:-2,yMax:2,alto:240,ticks:[-2,-1,0,1,2]});
+  const svg=$("g1"),ix=x=>(x+1)*50;tr.forEach(p=>svg.appendChild(S("circle",{cx:G.X(ix(p.x)),cy:G.Y(p.y),r:5,fill:C("azul")})));te.forEach(p=>svg.appendChild(S("circle",{cx:G.X(ix(p.x)),cy:G.Y(p.y),r:5,fill:"none",stroke:C("baja"),"stroke-width":2})));
+  $("m1a").textContent=num(errs[g][0],3);$("m1b").textContent=num(errs[g][1],3);$("m1b").className=errs[g][1]>errs[2][1]*1.5?"mal":"";
+  grafico($("g1b"),{series:[{d:errs.map(e=>e[0]),color:C("azul")},{d:errs.map(e=>Math.min(e[1],1.2)),color:C("baja")}],yMin:0,alto:170,marcas:[{i:g,y:Math.min(errs[g][1],1.2),color:C("baja")},{i:g,y:errs[g][0],color:C("azul")}],etiquetasX:[0,3,6,9].map(i=>({i,txt:"grado "+i})),pb:26,decimales:2});}
+$("gr").addEventListener("input",l1);l1();
+let sem=1;
+function correr(c,fa,le,desde,hasta){const a=ema(c,fa),b=ema(c,le);let cap=1,pos=0;const cur=[];for(let i=desde;i<hasta;i++){const ret=c[i]/c[i-1]-1;cap*=1+pos*ret;const nuevo=a[i]!=null&&b[i]!=null&&a[i]>b[i]?1:0;if(nuevo!==pos){cap*=0.999;pos=nuevo}cur.push(cap)}return{cap,cur}}
+function l2(){const c=caminata(600,{seed:sem*11+5,vol:1.1,deriva:0});let best=null;const dentro=[],fuera=[];
+  for(let fa=3;fa<=20;fa++)for(let le=25;le<=100;le+=5){const r=correr(c,fa,le,100,400);const o=correr(c,fa,le,400,600);dentro.push(r.cap);fuera.push(o.cap);if(!best||r.cap>best.r)best={fa,le,r:r.cap,o:o.cap}}
+  const full=correr(c,best.fa,best.le,100,600);const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]};const P=x=>sgn((x-1)*100,1)+" %";
+  grafico($("g2"),{series:[{d:full.cur.map(x=>x*100),color:C("azul")}],lineasV:[{i:300,color:C("baja"),txt:"fuera de muestra →"}],lineasH:[{y:100,color:C("grafito")}],bandas:[{i0:300,i1:499}],alto:230,fmtY:v=>num(v,0),decimales:0});
+  const md=med(dentro),mf=med(fuera);$("m2a").textContent=`medias ${best.fa} y ${best.le}`;$("m2b").textContent=P(best.r);$("m2c").textContent=P(md);$("m2d").textContent=P(best.o);$("m2e").textContent=P(mf);
+  const vd=(best.r-md)*100,vf=(best.o-mf)*100;$("r2").textContent=`Dentro de muestra, la elegida le saca ${num(vd,1)} puntos a la combinación típica. Fuera de muestra, ${vf>2?"le saca "+num(vf,1)+" puntos: esta vez la suerte siguió un rato, pero en otros mercados no se repite.":vf<-2?"queda "+num(-vf,1)+" puntos por debajo: la ventaja era suerte.":"queda prácticamente igual: la ventaja era suerte."} Prueba con otros mercados.`;}
+$("otra").addEventListener("click",()=>{sem++;l2()});l2();
+$("treinta").addEventListener("click",()=>{$("r2b").textContent="Calculando…";setTimeout(()=>{let gd=0,gf=0;const N=30;const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]};
+  for(let s=1;s<=N;s++){const c=caminata(600,{seed:s*11+5,vol:1.1,deriva:0});let best=null;const D=[],F=[];for(let fa=3;fa<=20;fa++)for(let le=25;le<=100;le+=5){const r=correr(c,fa,le,100,400).cap,o=correr(c,fa,le,400,600).cap;D.push(r);F.push(o);if(!best||r>best.r)best={r,o}}gd+=(best.r-med(D))*100;gf+=(best.o-med(F))*100}
+  $("r2b").textContent=`En 30 mercados aleatorios, la combinación elegida le sacó en promedio ${sgn(gd/N,1)} puntos a la típica dentro de muestra, y ${sgn(gf/N,1)} puntos fuera de muestra. La ventaja de elegir «la mejor» desaparece con datos nuevos.`},30)});
+function l3(){const svg=$("g3");limpiar(svg);for(let k=0;k<5;k++){const y=14+k*38,x0=20+k*90;svg.appendChild(S("rect",{x:x0,y,width:240,height:26,rx:4,fill:C("regla")}));svg.appendChild(S("rect",{x:x0+240,y,width:90,height:26,rx:4,fill:C("azul")}));
+  svg.appendChild(S("text",{x:x0+120,y:y+18,"text-anchor":"middle","font-size":fz(svg,12),fill:C("tinta")},"optimizar"));svg.appendChild(S("text",{x:x0+285,y:y+18,"text-anchor":"middle","font-size":fz(svg,12),fill:C("hoja"),"font-weight":700},"probar "+(k+1)))}
+  svg.appendChild(S("text",{x:20,y:205,"font-size":fz(svg,12),fill:C("grafito")},"tiempo →"));}
+l3();alTema(()=>{l1();l2();l3()});
+quiz("quiz",[
+{q:"Una estrategia gana 300 % en el backtest y pierde en datos nuevos. ¿Qué pasó probablemente?",o:["Sobreajuste","Mala suerte del bróker","Que el mercado cerró"],c:0,e:"Se ajustó al ruido de los datos de prueba y ese ruido no se repite."},
+{q:"¿Qué son los datos fuera de muestra?",o:["Datos que no se usaron para elegir la estrategia ni sus parámetros","Datos de otro bróker","Datos sin volumen"],c:0,e:"Son el examen nuevo: solo valen si no los miraste al diseñar."},
+{q:"El parámetro 14 da excelente resultado, pero 13 y 15 dan pérdidas. ¿Qué concluyes?",o:["Que 14 es mágico","Que probablemente es suerte","Que hay que usar 14,5"],c:1,e:"Un resultado real suele mantenerse en una zona de parámetros vecinos."},
+{q:"¿Qué hace el walk-forward?",o:["Optimiza en una ventana, prueba en la siguiente y repite avanzando","Prueba todo de una vez","Elimina los costos"],c:0,e:"El resultado se arma solo con los tramos de prueba, como pasaría en la vida real."}
+]);
+})();
+</script>
+</body>
+</html>
