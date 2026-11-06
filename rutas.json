@@ -168,6 +168,11 @@
       "descripcion": "Qué hay dentro de un modelo y qué puede y no puede hacer con datos de mercado.",
       "temas": [
         {
+          "titulo": "La neurona, con un ejemplo",
+          "archivo": "ia/la-neurona.html",
+          "nivel": "básico"
+        },
+        {
           "titulo": "Neurona a neurona",
           "archivo": "ia/redes-neuronales.html",
           "nivel": "intermedio"

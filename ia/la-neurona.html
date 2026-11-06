@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La neurona, con un ejemplo</title>
+<meta name="description" content="Una neurona artificial explicada con una decisión de todos los días: entradas, pesos, umbral, activación y cómo aprende corrigiendo errores.">
+<meta name="tutorial:nivel" content="básico">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(40px,7vw,72px);line-height:.95;letter-spacing:-.035em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(24px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:64ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:15px}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+input[type=range]{width:100%;accent-color:var(--tinta)}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.sim{grid-template-columns:minmax(0,1fr)}}
+.fila{display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:6px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--regla)}
+.fila .nombre{font-weight:700}
+.fila .peso{grid-column:1 / -1;display:grid;grid-template-columns:auto minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:14px;color:var(--grafito)}
+.fila .peso b{color:var(--tinta);text-align:right;font-family:var(--f-mono)}
+.fila button{width:86px}
+svg text{font-family:var(--f-texto)}
+.resultado{display:inline-block;font-weight:700;padding:4px 12px;border-radius:6px;margin-top:6px}
+.resultado.si{background:var(--alza);color:var(--hoja)}
+.resultado.no{background:var(--baja);color:var(--hoja)}
+.pruebas li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+.tabla-scroll{overflow-x:auto}
+#entreno td,#entreno th{text-align:center}
+#entreno tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.ok{color:var(--alza);font-weight:700}
+.mal{color:var(--baja);font-weight:700}
+.botones{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:20px}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+footer{margin-top:40px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+  <nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+  <h1>La neurona, con un ejemplo</h1>
+  <p>Antes de hablar de redes, una sola pieza. Una neurona artificial es una regla para tomar una decisión sumando motivos a favor y en contra. Aquí la vas a construir con una decisión de todos los días y al final la vas a ver aprender sola.</p>
+
+  <section class="leccion" aria-labelledby="l1">
+    <h2 id="l1">1. Una decisión de sábado</h2>
+    <p>Imagina que tú eres la neurona y tu único trabajo es responder sí o no a una pregunta: <strong>¿voy este sábado al estadio a ver el partido?</strong></p>
+    <p>Para decidir miras tres datos, y cada uno vale 1 (sí) o 0 (no). Pero no todos te importan igual: a cada dato le das un <strong>peso</strong>, que dice cuánto importa y si empuja a favor (positivo) o en contra (negativo). Luego sumas y comparas con tu <strong>umbral</strong>, que es qué tan difícil eres de convencer.</p>
+
+    <div class="sim">
+      <div>
+        <div class="fila">
+          <span class="nombre">¿Tengo plata?</span><button id="t0" class="on" aria-pressed="true">Sí (1)</button>
+          <label class="peso">Peso <input type="range" id="w0" min="-5" max="5" step="0.5" value="3"><b id="v0">3</b></label>
+        </div>
+        <div class="fila">
+          <span class="nombre">¿Va un amigo?</span><button id="t1" aria-pressed="false">No (0)</button>
+          <label class="peso">Peso <input type="range" id="w1" min="-5" max="5" step="0.5" value="2"><b id="v1">2</b></label>
+        </div>
+        <div class="fila">
+          <span class="nombre">¿Está lloviendo?</span><button id="t2" class="on" aria-pressed="true">Sí (1)</button>
+          <label class="peso">Peso <input type="range" id="w2" min="-5" max="5" step="0.5" value="-2"><b id="v2">-2</b></label>
+        </div>
+        <div class="fila" style="border-bottom:none">
+          <span class="nombre">Umbral</span><span></span>
+          <label class="peso">Exigencia <input type="range" id="um" min="0" max="8" step="0.5" value="2.5"><b id="vum">2.5</b></label>
+        </div>
+      </div>
+      <div>
+        <svg id="diagrama" viewBox="0 0 360 250" role="img" aria-labelledby="diag-t">
+          <title id="diag-t">Diagrama de la neurona: tres entradas conectadas por líneas de grosor proporcional a su peso, un círculo que suma y una salida.</title>
+        </svg>
+        <div class="caja mono" id="cuenta" aria-live="polite"></div>
+        <div id="decision" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h3>Prueba esto</h3>
+    <ul class="pruebas">
+      <li>Con plata y lluvia en sí, la suma da 1 y no llega a 2,5: no vas. Ahora activa al amigo: 3 + 2 − 2 = 3, y vas. El amigo compensó la lluvia.</li>
+      <li>Pon el peso de la lluvia en 0. La lluvia deja de importar: la línea casi desaparece del diagrama.</li>
+      <li>Sube el umbral a 6. Te volviste muy exigente: ¿qué combinación necesitas ahora para ir?</li>
+    </ul>
+    <p class="clave">Una neurona solo hace tres cosas: multiplica cada dato por lo que le importa, suma todo y compara con un umbral. Si pasa, se activa.</p>
+  </section>
+
+  <section class="leccion" aria-labelledby="l2">
+    <h2 id="l2">2. Ponerle los nombres técnicos</h2>
+    <p>Todo lo que hiciste tiene un nombre en los libros de inteligencia artificial:</p>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>En el ejemplo</th><th>Nombre técnico</th><th>Símbolo</th></tr></thead>
+        <tbody>
+          <tr><td>Los tres datos (plata, amigo, lluvia)</td><td>Entradas</td><td class="mono">x₁, x₂, x₃</td></tr>
+          <tr><td>Cuánto importa cada dato</td><td>Pesos</td><td class="mono">w₁, w₂, w₃</td></tr>
+          <tr><td>La cuenta que hiciste</td><td>Suma ponderada</td><td class="mono">w₁x₁ + w₂x₂ + w₃x₃</td></tr>
+          <tr><td>Qué tan difícil eres de convencer</td><td>Umbral, o sesgo con signo contrario</td><td class="mono">b = −umbral</td></tr>
+          <tr><td>La regla «si pasa, sí; si no, no»</td><td>Función de activación</td><td class="mono">f</td></tr>
+          <tr><td>Voy o no voy</td><td>Salida</td><td class="mono">ŷ (1 o 0)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Con esos nombres, la neurona completa cabe en una línea:</p>
+    <div class="caja mono">ŷ = 1 si w₁x₁ + w₂x₂ + w₃x₃ + b ≥ 0; si no, ŷ = 0</div>
+    <p class="clave">El sesgo no es nada nuevo: es el umbral pasado al otro lado de la ecuación. Decir «la suma debe llegar a 2,5» es lo mismo que decir «la suma menos 2,5 debe llegar a 0».</p>
+  </section>
+
+  <section class="leccion" aria-labelledby="l3">
+    <h2 id="l3">3. Del sí o no al «qué tan seguro»</h2>
+    <p>La regla del ejemplo es tajante: con una suma de 2,4 dices no y con 2,6 dices sí, aunque la diferencia sea mínima. Esa regla se llama <strong>escalón</strong>. Las redes modernas usan curvas suaves, como la <strong>sigmoide</strong>, que en vez de sí o no dan un número entre 0 y 1: qué tan segura está la neurona.</p>
+    <p>Mueve el margen (cuánto pasa o le falta a la suma para llegar al umbral) y compara las dos respuestas.</p>
+    <label class="peso" style="display:grid;grid-template-columns:auto minmax(0,1fr) 48px;gap:10px;align-items:center">Margen <input type="range" id="z" min="-6" max="6" step="0.1" value="0.5"><b class="mono" id="vz" style="text-align:right">0.5</b></label>
+    <svg id="curvas" viewBox="0 0 520 220" role="img" aria-labelledby="curvas-t" style="margin-top:8px">
+      <title id="curvas-t">Gráfico que compara la función escalón con la sigmoide para el margen elegido.</title>
+    </svg>
+    <div class="medidores">
+      <div class="medidor"><span>Escalón dice</span><b id="oesc">1</b></div>
+      <div class="medidor"><span>Sigmoide dice</span><b id="osig">0.62</b></div>
+      <div class="medidor"><span>En palabras</span><b id="opal" style="font-size:16px">62 % seguro de que sí</b></div>
+    </div>
+    <p class="clave">Con la sigmoide, un cambio pequeño en los pesos produce un cambio pequeño en la salida. Eso es lo que permite que una red aprenda ajustando poco a poco.</p>
+  </section>
+
+  <section class="leccion" aria-labelledby="l4">
+    <h2 id="l4">4. Cómo aprende: enséñale a la neurona</h2>
+    <p>Hasta ahora tú pusiste los pesos. Lo interesante es que la neurona los puede encontrar sola. Ana es una amiga que tiene su propia manera de decidir, y la neurona no la conoce. Solo sabe lo que Ana hizo en estos ocho sábados.</p>
+    <p>La neurona empieza sin saber nada: todos los pesos en 0 y umbral en 1. Revisa un sábado a la vez, y si se equivoca, corrige con una regla muy sencilla:</p>
+    <ul>
+      <li>Si dijo <strong>no</strong> y Ana sí fue: a los datos que estaban en 1 les sube el peso en 1, y baja el umbral en 1.</li>
+      <li>Si dijo <strong>sí</strong> y Ana no fue: a los datos que estaban en 1 les baja el peso en 1, y sube el umbral en 1.</li>
+      <li>Si acertó, no toca nada.</li>
+    </ul>
+    <div class="botones">
+      <button id="paso">Revisar un sábado</button>
+      <button id="todo">Entrenar hasta acertar todo</button>
+      <button id="reinicio">Empezar de cero</button>
+    </div>
+    <div class="medidores">
+      <div class="medidor"><span>Peso plata</span><b id="ew0">0</b></div>
+      <div class="medidor"><span>Peso amigo</span><b id="ew1">0</b></div>
+      <div class="medidor"><span>Peso lluvia</span><b id="ew2">0</b></div>
+      <div class="medidor"><span>Umbral</span><b id="eum">1</b></div>
+      <div class="medidor"><span>Aciertos</span><b id="eac">0 de 8</b></div>
+    </div>
+    <p id="emsg" class="caja" aria-live="polite">Pulsa «Revisar un sábado» para que la neurona mire el primer ejemplo.</p>
+    <div class="tabla-scroll">
+      <table id="entreno">
+        <thead><tr><th>Sábado</th><th>Plata</th><th>Amigo</th><th>Lluvia</th><th>Ana fue</th><th>Neurona dice</th><th>¿Acierta?</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="clave">Aprender es solo eso: ajustar pesos y umbral a partir de ejemplos hasta equivocarse lo menos posible. Fíjate en cómo termina el peso de la plata: la neurona descubre sola que a Ana la plata no le importa, solo que vaya un amigo y que no llueva.</p>
+  </section>
+
+  <section class="leccion" aria-labelledby="l5">
+    <h2 id="l5">5. De dónde viene el nombre y para qué sirve</h2>
+    <p>La idea se copió, de manera muy simplificada, de las neuronas del cerebro:</p>
+    <div class="tabla-scroll">
+      <table>
+        <thead><tr><th>Neurona del cerebro</th><th>Neurona artificial</th></tr></thead>
+        <tbody>
+          <tr><td>Las dendritas reciben señales de otras neuronas</td><td>Entradas</td></tr>
+          <tr><td>Cada conexión (sinapsis) es más fuerte o más débil</td><td>Pesos</td></tr>
+          <tr><td>El cuerpo de la célula acumula las señales</td><td>Suma ponderada</td></tr>
+          <tr><td>Si se supera cierto nivel, dispara por el axón</td><td>Umbral y activación</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Un ejemplo con el mercado</h3>
+    <p>Las entradas podrían ser señales del gráfico, cada una en 1 o 0: el RSI está por debajo de 30, hubo un cruce de medias al alza, el volumen está por encima de su promedio. La salida sería «hay señal de compra» o no. Los pesos dirían cuál señal pesa más. Es solo para ver la mecánica: una neurona sola es demasiado simple para leer un mercado, y ni una red grande garantiza acertar.</p>
+    <h3>¿Y una red neuronal?</h3>
+    <p>Es lo mismo, repetido: muchas neuronas en capas, donde la salida de unas es la entrada de las siguientes. Una sola neurona solo puede separar los casos con una línea recta; al juntarlas, la red puede resolver problemas mucho más complicados. Eso lo ves en el siguiente tutorial.</p>
+    <p class="clave">Siguiente paso: <a href="redes-neuronales.html">Neurona a neurona</a>, donde la neurona aprende con la sigmoide y una red completa resuelve problemas que una sola no puede.</p>
+  </section>
+
+  <section class="leccion" aria-labelledby="l6">
+    <h2 id="l6">6. Comprueba que entendiste</h2>
+    <div id="quiz"></div>
+  </section>
+
+  <footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const fmt=n=>{const r=Math.round(n*10)/10;return Number.isInteger(r)?String(r):r.toFixed(1)};
+  const NS="http://www.w3.org/2000/svg";
+  const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  function el(tag,attrs,txt){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(txt!=null)e.textContent=txt;return e}
+
+  /* Lección 1 */
+  const x=[1,0,1];
+  const nombres=["Plata","Amigo","Lluvia"];
+  function dibujar(w,u,s,activa){
+    const svg=$("diagrama");
+    while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
+    const tinta=css("--tinta"),grafito=css("--grafito"),alza=css("--alza"),baja=css("--baja"),hoja=css("--hoja"),marc=css("--marcador"),mt=css("--marcador-tinta"),regla=css("--regla");
+    const nx=230,ny=120,ys=[45,120,195];
+    ys.forEach((y,i)=>{
+      const ancho=Math.max(0.6,Math.abs(w[i])*1.6);
+      const color=w[i]>=0?alza:baja;
+      svg.appendChild(el("line",{x1:58,y1:y,x2:nx-34,y2:ny,stroke:x[i]?color:regla,"stroke-width":ancho,"stroke-dasharray":x[i]?"":"5 5","stroke-linecap":"round"}));
+      const mx=(58+nx-34)/2,my=(y+ny)/2;
+      svg.appendChild(el("rect",{x:mx-20,y:my-12,width:40,height:22,rx:4,fill:hoja,stroke:regla}));
+      svg.appendChild(el("text",{x:mx,y:my+4,"text-anchor":"middle","font-size":13,fill:tinta},fmt(w[i])));
+      svg.appendChild(el("circle",{cx:34,cy:y,r:24,fill:x[i]?marc:hoja,stroke:tinta,"stroke-width":1.5}));
+      svg.appendChild(el("text",{x:34,y:y+5,"text-anchor":"middle","font-size":15,"font-weight":700,fill:x[i]?mt:tinta},String(x[i])));
+      svg.appendChild(el("text",{x:34,y:y+40,"text-anchor":"middle","font-size":12,fill:grafito},nombres[i]));
+    });
+    svg.appendChild(el("circle",{cx:nx,cy:ny,r:34,fill:activa?marc:hoja,stroke:tinta,"stroke-width":2}));
+    svg.appendChild(el("text",{x:nx,y:ny-4,"text-anchor":"middle","font-size":11,fill:activa?mt:grafito},"suma"));
+    svg.appendChild(el("text",{x:nx,y:ny+14,"text-anchor":"middle","font-size":17,"font-weight":700,fill:activa?mt:tinta},fmt(s)));
+    svg.appendChild(el("text",{x:nx,y:ny+52,"text-anchor":"middle","font-size":12,fill:grafito},"umbral "+fmt(u)));
+    svg.appendChild(el("line",{x1:nx+34,y1:ny,x2:318,y2:ny,stroke:activa?alza:regla,"stroke-width":activa?4:2,"stroke-linecap":"round"}));
+    svg.appendChild(el("polygon",{points:"318,"+(ny-7)+" 332,"+ny+" 318,"+(ny+7),fill:activa?alza:regla}));
+    svg.appendChild(el("text",{x:338,y:ny-12,"text-anchor":"middle","font-size":13,"font-weight":700,fill:activa?alza:baja},activa?"Sí":"No"));
+  }
+  function actualizar(){
+    const w=[0,1,2].map(i=>parseFloat($("w"+i).value));
+    const u=parseFloat($("um").value);
+    w.forEach((v,i)=>$("v"+i).textContent=fmt(v));
+    $("vum").textContent=fmt(u);
+    const s=w.reduce((a,v,i)=>a+v*x[i],0);
+    const activa=s>=u;
+    $("cuenta").textContent=w.map((v,i)=>"("+fmt(v)+" × "+x[i]+")").join(" + ")+" = "+fmt(s);
+    $("decision").innerHTML=fmt(s)+(activa?" ≥ ":" &lt; ")+fmt(u)+" (umbral) → <span class='resultado "+(activa?"si":"no")+"'>"+(activa?"Se activa: sí voy":"No se activa: no voy")+"</span>";
+    dibujar(w,u,s,activa);
+  }
+  [0,1,2].forEach(i=>{
+    const b=$("t"+i);
+    b.addEventListener("click",()=>{x[i]=1-x[i];b.textContent=x[i]?"Sí (1)":"No (0)";b.classList.toggle("on",x[i]===1);b.setAttribute("aria-pressed",x[i]?"true":"false");actualizar()});
+    $("w"+i).addEventListener("input",actualizar);
+  });
+  $("um").addEventListener("input",actualizar);
+
+  /* Lección 3 */
+  const sig=z=>1/(1+Math.exp(-z));
+  function curvas(){
+    const z=parseFloat($("z").value);
+    $("vz").textContent=z.toFixed(1);
+    const svg=$("curvas");
+    while(svg.childNodes.length>1)svg.removeChild(svg.lastChild);
+    const tinta=css("--tinta"),grafito=css("--grafito"),alza=css("--alza"),baja=css("--baja"),regla=css("--regla"),marc=css("--marcador");
+    const X=v=>40+(v+6)/12*460, Y=v=>190-v*160;
+    [0,0.5,1].forEach(v=>{svg.appendChild(el("line",{x1:40,y1:Y(v),x2:500,y2:Y(v),stroke:regla,"stroke-dasharray":v===0.5?"4 4":""}));svg.appendChild(el("text",{x:32,y:Y(v)+4,"text-anchor":"end","font-size":12,fill:grafito},String(v)))});
+    [-6,-3,0,3,6].forEach(v=>svg.appendChild(el("text",{x:X(v),y:208,"text-anchor":"middle","font-size":12,fill:grafito},String(v))));
+    svg.appendChild(el("line",{x1:X(0),y1:Y(0),x2:X(0),y2:Y(1),stroke:regla}));
+    svg.appendChild(el("polyline",{points:X(-6)+","+Y(0)+" "+X(0)+","+Y(0)+" "+X(0)+","+Y(1)+" "+X(6)+","+Y(1),fill:"none",stroke:baja,"stroke-width":2.5}));
+    let pts="";for(let v=-6;v<=6.001;v+=0.1)pts+=X(v)+","+Y(sig(v))+" ";
+    svg.appendChild(el("polyline",{points:pts,fill:"none",stroke:alza,"stroke-width":3}));
+    const esc=z>=0?1:0,s=sig(z);
+    svg.appendChild(el("line",{x1:X(z),y1:Y(0),x2:X(z),y2:Y(1),stroke:tinta,"stroke-width":1,"stroke-dasharray":"3 3"}));
+    svg.appendChild(el("circle",{cx:X(z),cy:Y(esc),r:6,fill:baja}));
+    svg.appendChild(el("circle",{cx:X(z),cy:Y(s),r:7,fill:marc,stroke:tinta,"stroke-width":1.5}));
+    svg.appendChild(el("text",{x:52,y:20,"font-size":13,fill:baja,"font-weight":700},"escalón"));
+    svg.appendChild(el("text",{x:120,y:20,"font-size":13,fill:alza,"font-weight":700},"sigmoide"));
+    $("oesc").textContent=String(esc);
+    $("osig").textContent=s.toFixed(2);
+    const pct=Math.round(s*100);
+    $("opal").textContent=pct>=50?pct+" % seguro de que sí":(100-pct)+" % seguro de que no";
+  }
+  $("z").addEventListener("input",curvas);
+
+  /* Lección 4 */
+  const casos=[];
+  for(let p=1;p>=0;p--)for(let a=1;a>=0;a--)for(let l=0;l<2;l++)casos.push([p,a,l]);
+  const ana=c=>(c[1]===1&&c[2]===0)?1:0;
+  let ew,eu,idx,ronda;
+  const sn=v=>v?"Sí":"No";
+  const predice=c=>(ew[0]*c[0]+ew[1]*c[1]+ew[2]*c[2])>=eu?1:0;
+  function tabla(actual){
+    const tb=$("entreno").querySelector("tbody");
+    tb.innerHTML="";
+    let ac=0;
+    casos.forEach((c,i)=>{
+      const y=predice(c),ok=y===ana(c);if(ok)ac++;
+      const tr=document.createElement("tr");if(i===actual)tr.className="actual";
+      tr.innerHTML="<td>"+(i+1)+"</td><td>"+sn(c[0])+"</td><td>"+sn(c[1])+"</td><td>"+sn(c[2])+"</td><td>"+sn(ana(c))+"</td><td>"+sn(y)+"</td><td class='"+(ok?"ok":"mal")+"'>"+(ok?"✓":"✗")+"</td>";
+      tb.appendChild(tr);
+    });
+    ["ew0","ew1","ew2"].forEach((id,i)=>$(id).textContent=String(ew[i]));
+    $("eum").textContent=String(eu);
+    $("eac").textContent=ac+" de 8";
+    return ac;
+  }
+  function reiniciar(){ew=[0,0,0];eu=1;idx=0;ronda=1;tabla(-1);$("emsg").textContent="Pulsa «Revisar un sábado» para que la neurona mire el primer ejemplo."}
+  function paso(){
+    const c=casos[idx],y=predice(c),t=ana(c),d=t-y;
+    const suma=ew[0]*c[0]+ew[1]*c[1]+ew[2]*c[2];
+    let m="Sábado "+(idx+1)+" (ronda "+ronda+"): la suma da "+suma+" y el umbral es "+eu+", así que la neurona dice "+sn(y).toLowerCase()+". Ana "+(t?"sí fue":"no fue")+". ";
+    if(d===0){m+="Acertó: no cambia nada."}
+    else{
+      const cuales=[0,1,2].filter(i=>c[i]===1).map(i=>nombres[i].toLowerCase());
+      for(let i=0;i<3;i++)ew[i]+=d*c[i];eu-=d;
+      m+="Se equivocó: "+(cuales.length?(d>0?"sube":"baja")+" en 1 el peso de "+cuales.join(" y ")+", y ":"")+(d>0?"baja":"sube")+" el umbral a "+eu+".";
+    }
+    const actual=idx;
+    idx++;if(idx===casos.length){idx=0;ronda++}
+    const ac=tabla(actual);
+    if(ac===8)m+=" Ya acierta los ocho sábados.";
+    $("emsg").textContent=m;
+    return ac;
+  }
+  $("paso").addEventListener("click",paso);
+  $("todo").addEventListener("click",()=>{
+    let n=0,cambios=0;
+    while(n<200&&tabla(-1)<8){const c=casos[idx];if(predice(c)!==ana(c))cambios++;paso();n++}
+    const ac=tabla(-1);
+    $("emsg").textContent=ac===8&&n===0?"Ya acierta los ocho sábados. Pulsa «Empezar de cero» para verla aprender otra vez.":ac===8?"Listo: la neurona revisó "+n+" sábados, corrigió "+cambios+" veces y ahora acierta los ocho. Pesos finales: plata "+ew[0]+", amigo "+ew[1]+", lluvia "+ew[2]+", umbral "+eu+".":"Todavía no acierta todo; sigue entrenando.";
+  });
+  $("reinicio").addEventListener("click",reiniciar);
+
+  /* Lección 6 */
+  const preguntas=[
+    {q:"Si el peso de la lluvia fuera 0, ¿qué significaría?",o:["Que siempre está lloviendo","Que a la neurona la lluvia no le importa para decidir","Que la neurona nunca se activa"],c:1,e:"Un peso de 0 anula ese dato: multiplicado por 0 no suma ni resta, llueva o no."},
+    {q:"¿Qué pasa si subes mucho el umbral?",o:["La neurona se activa casi siempre","Los pesos se vuelven negativos","La neurona se vuelve exigente y casi nunca se activa"],c:2,e:"Un umbral alto pide una suma alta, así que solo las mejores combinaciones lo superan."},
+    {q:"Cuando la neurona aprende, ¿qué es lo que cambia?",o:["Los pesos y el umbral","Las entradas","Lo que hizo Ana"],c:0,e:"Las entradas son los datos y no se tocan. Lo que se ajusta con cada error son los pesos y el umbral."},
+    {q:"¿Por qué las redes reales prefieren la sigmoide al escalón?",o:["Porque es más rápida de calcular","Porque da una salida suave que permite ajustar los pesos poco a poco","Porque siempre da 1"],c:1,e:"Con el escalón, un cambio pequeño no se nota hasta que salta. La sigmoide refleja cada ajuste, y eso facilita aprender."}
+  ];
+  const qz=$("quiz");
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{
+      const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{
+        op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> Piénsalo con el simulador de arriba y vuelve a intentar."}
+      });
+      op.appendChild(b);
+    });
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d);
+  });
+
+  actualizar();curvas();reiniciar();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{actualizar();curvas()});
+})();
+</script>
+</body>
+</html>

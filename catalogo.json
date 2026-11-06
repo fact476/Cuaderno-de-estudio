@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-05T01:51:08+00:00",
+  "generado": "2026-11-06T00:53:03+00:00",
   "totales": {
-    "temas": 34,
-    "listos": 3,
+    "temas": 35,
+    "listos": 4,
     "progreso": 0
   },
   "rutas": [
@@ -202,6 +202,14 @@
       "titulo": "IA aplicada",
       "descripcion": "Qué hay dentro de un modelo y qué puede y no puede hacer con datos de mercado.",
       "temas": [
+        {
+          "titulo": "La neurona, con un ejemplo",
+          "archivo": "ia/la-neurona.html",
+          "nivel": "básico",
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Una neurona artificial explicada con una decisión de todos los días: entradas, pesos, umbral, activación y cómo aprende corrigiendo errores."
+        },
         {
           "titulo": "Neurona a neurona",
           "archivo": "ia/redes-neuronales.html",
