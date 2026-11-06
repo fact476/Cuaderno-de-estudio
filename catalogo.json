@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:06:24+00:00",
+  "generado": "2026-11-06T01:10:07+00:00",
   "totales": {
     "temas": 35,
-    "listos": 9,
+    "listos": 13,
     "progreso": 0
   },
   "rutas": [
@@ -72,25 +72,33 @@
           "titulo": "Medias móviles, retrocesos y cruces",
           "archivo": "analisis-tecnico/medias-moviles.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué promedia una media móvil, la diferencia entre simple y exponencial, por qué llega tarde y cuándo sirven sus cruces."
         },
         {
           "titulo": "RSI, MACD y otros osciladores",
           "archivo": "analisis-tecnico/osciladores.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Cómo se calcula el RSI, qué significan sobrecompra y sobreventa, cómo leer el MACD y por qué en una tendencia fuerte estos indicadores engañan."
         },
         {
           "titulo": "ATR: medir la volatilidad",
           "archivo": "analisis-tecnico/atr-volatilidad.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "El rango verdadero vela por vela, el ATR como su promedio y cómo usarlo para poner stops y comparar qué tan nervioso está un activo."
         },
         {
           "titulo": "Volumen y perfil de volumen",
           "archivo": "analisis-tecnico/volumen.html",
           "nivel": "avanzado",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Por qué el volumen confirma o desmiente un movimiento, cómo medir el volumen relativo y cómo leer el perfil de volumen, su punto de control y el VWAP."
         }
       ]
     },

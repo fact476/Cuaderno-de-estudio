@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volumen y perfil de volumen</title>
+<meta name="description" content="Por qué el volumen confirma o desmiente un movimiento, cómo medir el volumen relativo y cómo leer el perfil de volumen, su punto de control y el VWAP.">
+<meta name="tutorial:nivel" content="avanzado">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --azul:#1b62ad; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--azul:#62a6ef;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px;overflow-wrap:break-word}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a,.siguiente a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(36px,7vw,68px);line-height:.98;letter-spacing:-.03em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:66ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+@media (max-width:480px){.leccion{padding:16px 14px}body{font-size:16px}}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.aviso{border-left:4px solid var(--baja);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--suave);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--suave);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+select,input[type=number],input[type=text]{font:inherit;font-size:16px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--regla);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--tinta);flex:none;margin-top:3px}
+.ctl{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr) 78px;gap:6px 12px;align-items:center;margin:10px 0;font-size:15px}
+.ctl b{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+@media (max-width:520px){.ctl{grid-template-columns:minmax(0,1fr) 78px}.ctl>span:first-child{grid-column:1 / -1}.ctl input[type=range]{grid-column:1}}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 14px;margin:12px 0}
+.campos label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--grafito)}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.dos{grid-template-columns:minmax(0,1fr)}}
+.grafico{display:block;width:100%;height:auto;margin:10px 0}
+svg text{font-family:var(--f-texto)}
+.botones,.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px;min-width:0}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:19px;overflow-wrap:anywhere}
+.medidor b.ok,.ok{color:var(--alza)}
+.medidor b.mal,.mal{color:var(--baja)}
+.ok,.mal{font-weight:700}
+.tabla-scroll{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.tarjeta{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:12px 14px;min-width:0}
+.tarjeta h3{margin-top:0}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--grafito)}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.lista-chk{list-style:none;padding:0}
+.lista-chk li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--regla)}
+.etiqueta{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--suave)}
+.etiqueta.ok{background:var(--alza);color:var(--hoja)}
+.etiqueta.mal{background:var(--baja);color:var(--hoja)}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+.siguiente{margin-top:28px;font-size:17px}
+footer{margin-top:28px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+<nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+<h1>Volumen y perfil de volumen</h1>
+<p>El precio dice qué pasó; el volumen dice cuánta gente participó. Una subida con mucha participación tiene más respaldo que una con muy poca. El perfil de volumen da un paso más: muestra a qué precios se negoció más.</p>
+
+<section class="leccion" aria-labelledby="l1">
+  <h2 id="l1">1. El volumen confirma o desmiente</h2>
+  <p>Aquí hay dos rupturas de un techo. La primera llega con mucho volumen; la segunda, con muy poco. Mira qué pasa después de cada una.</p>
+  <svg id="g1a" class="grafico" role="img" aria-labelledby="g1at"><title id="g1at">Velas diarias con dos rupturas marcadas.</title></svg>
+  <svg id="g1b" class="grafico" role="img" aria-labelledby="g1bt"><title id="g1bt">Volumen diario con su promedio de 20 días.</title></svg>
+  <div class="leyenda"><span><i class="sw" style="background:var(--grafito)"></i>Volumen</span><span><i class="sw" style="background:var(--azul)"></i>Promedio de 20 días</span></div>
+  <p class="clave">La ruptura con volumen alto sigue subiendo: muchos participantes empujaron. La de volumen bajo regresa al rango: pocos la creyeron. No es una regla perfecta, pero es una buena pregunta antes de entrar.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l2">
+  <h2 id="l2">2. Volumen relativo</h2>
+  <p>Un volumen de 2.000 acciones no dice nada por sí solo: depende de lo normal para ese activo. El <strong>volumen relativo</strong> compara el volumen del día con su promedio de 20 días. Elige un día del gráfico de arriba:</p>
+  <label class="ctl"><span>Día</span><input type="range" id="di" min="20" max="79" step="1" value="30"><b id="div"></b></label>
+  <div class="medidores">
+    <div class="medidor"><span>Volumen del día</span><b id="m2a"></b></div>
+    <div class="medidor"><span>Promedio de 20 días</span><b id="m2b"></b></div>
+    <div class="medidor"><span>Volumen relativo</span><b id="m2c"></b></div>
+  </div>
+  <p class="clave">Por encima de 1,5 veces el promedio, el día llamó la atención del mercado. Por debajo de 0,7, el movimiento pasó casi sin testigos.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l3">
+  <h2 id="l3">3. El perfil de volumen</h2>
+  <p>En vez de sumar el volumen por día, el perfil lo suma por precio y lo dibuja de lado. Así ves dónde se concentró el negocio en una sesión.</p>
+  <ul>
+    <li><strong>Punto de control</strong>: el precio con más volumen. Es el precio que el mercado consideró más justo.</li>
+    <li><strong>Área de valor</strong>: la zona alrededor del punto de control donde ocurrió el 70 % del volumen.</li>
+    <li><strong>VWAP</strong>: el precio promedio ponderado por volumen desde la apertura. Los fondos lo usan para medir si compraron bien o mal.</li>
+  </ul>
+  <label class="ctl"><span>Niveles de precio</span><input type="range" id="nb" min="8" max="40" step="1" value="20"><b id="nbv"></b></label>
+  <div class="botones"><button id="otra">Otra sesión</button></div>
+  <svg id="g3" class="grafico" viewBox="0 0 640 300" role="img" aria-labelledby="g3t"><title id="g3t">Precio de una sesión con su VWAP y, al lado, el perfil de volumen con punto de control y área de valor.</title></svg>
+  <div class="leyenda"><span><i class="sw" style="background:var(--marcador)"></i>Punto de control</span><span><i class="sw" style="background:var(--azul)"></i>Área de valor (70 %)</span><span><i class="sw" style="background:var(--baja)"></i>VWAP</span></div>
+  <div class="medidores">
+    <div class="medidor"><span>Punto de control</span><b id="m3a"></b></div>
+    <div class="medidor"><span>Área de valor</span><b id="m3b"></b></div>
+    <div class="medidor"><span>VWAP al cierre</span><b id="m3c"></b></div>
+  </div>
+  <p class="clave">Las zonas con mucho volumen suelen frenar el precio, porque ahí hay muchas posiciones abiertas. Las zonas con poco volumen se atraviesan rápido.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l4">
+  <h2 id="l4">4. Cómo usarlo sin complicarse</h2>
+  <ul>
+    <li>Antes de entrar en una ruptura, pregunta: ¿el volumen relativo es alto?</li>
+    <li>Si el precio está por encima del VWAP, los compradores del día van ganando; si está por debajo, los vendedores.</li>
+    <li>Un precio que vuelve al área de valor después de salirse suele recorrerla hasta el otro extremo.</li>
+    <li>En futuros y acciones el volumen es real; en el mercado de divisas al contado, las plataformas muestran solo una aproximación.</li>
+  </ul>
+</section>
+
+<section class="leccion" aria-labelledby="repaso"><h2 id="repaso">Comprueba que entendiste</h2><div id="quiz"></div></section>
+<nav class="siguiente" aria-label="Siguiente tema">Siguiente tema: <a href="../riesgo/tamano-de-posicion.html">Tamaño de posición por riesgo fijo</a></nav>
+<footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=v=>getComputedStyle(document.documentElement).getPropertyValue("--"+v).trim();
+const val=id=>parseFloat($(id).value);
+const num=(n,d=0)=>Number(n).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=(n,d=0)=>(n<0?"−":"")+"US$ "+num(Math.abs(n),d);
+const pct=(n,d=1)=>num(n,d)+" %";
+const sgn=(n,d=0)=>(n>0?"+":n<0?"−":"")+num(Math.abs(n),d);
+const NS="http://www.w3.org/2000/svg";
+function S(tag,a,t){const e=document.createElementNS(NS,tag);for(const k in a)if(a[k]!==undefined&&a[k]!==null)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function limpiar(svg){[...svg.childNodes].forEach(n=>{if(!(n.nodeName&&n.nodeName.toLowerCase()==="title"))svg.removeChild(n)})}
+function enlazar(ids,fn){ids.forEach(id=>{const e=$(id);e.addEventListener(e.tagName==="BUTTON"?"click":"input",fn);if(e.tagName==="SELECT")e.addEventListener("change",fn)})}
+const redibujos=[];
+function alTema(fn){redibujos.push(fn)}
+try{window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>redibujos.forEach(f=>f()))}catch(e){}
+function azar(seed){let a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function caminata(n,o={}){const r=azar(o.seed||1);let p=o.inicio||100;const out=[p];for(let i=1;i<n;i++){p=Math.max(1,p*(1+((o.deriva||0)+normal(r)*(o.vol||1))/100));out.push(p)}return out}
+function velasSim(n,o={}){const r=azar(o.seed||1);let c=o.inicio||100;const out=[];for(let i=0;i<n;i++){const vol=(o.volDe?o.volDe(i):o.vol||1.2);const op=c*(1+normal(r)*vol*0.25/100);const cl=Math.max(1,op*(1+((o.deriva||0)+normal(r)*vol)/100));const h=Math.max(op,cl)*(1+r()*vol*0.6/100),l=Math.min(op,cl)*(1-r()*vol*0.6/100);const v=Math.round((o.volumen||1000)*(0.6+r()*0.8)*(1+Math.abs(cl-op)/op*40));out.push({o:op,h,l,c:cl,v});c=cl}return out}
+function sma(a,p){return a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((s,x)=>s+x,0)/p)}
+function ema(a,p){const k=2/(p+1);let e=null;return a.map((x,i)=>{if(x==null)return null;e=e==null?x:x*k+e*(1-k);return i<p-1?null:e})}
+function rsi(c,p=14){const out=[null];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];const up=Math.max(d,0),dn=Math.max(-d,0);if(i<=p){g+=up/p;l+=dn/p;out.push(i===p?(l===0?100:100-100/(1+g/l)):null)}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p;out.push(l===0?100:100-100/(1+g/l))}}return out}
+function rangoReal(v){return v.map((x,i)=>i===0?x.h-x.l:Math.max(x.h-x.l,Math.abs(x.h-v[i-1].c),Math.abs(x.l-v[i-1].c)))}
+function atr(v,p=14){const tr=rangoReal(v);const out=[];let a=null;tr.forEach((t,i)=>{if(i<p-1){out.push(null);return}if(a==null)a=tr.slice(0,p).reduce((s,x)=>s+x,0)/p;else a=(a*(p-1)+t)/p;out.push(a)});return out}
+function decs(r){return r<2?2:r<30?1:0}
+function grafico(svg,o){
+  limpiar(svg);
+  const W=o.ancho||640,H=o.alto||260,pl=o.pl||50,pr=o.pr||14,pt=o.pt||14,pb=o.pb||24;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  const series=o.series||[];const n=o.n||(o.velas?o.velas.length:(series[0]?series[0].d.length:(o.barras?o.barras.d.length:2)));
+  let vals=[];series.forEach(s=>s.d.forEach(x=>{if(x!=null&&isFinite(x))vals.push(x)}));
+  if(o.velas)o.velas.forEach(v=>{vals.push(v.h,v.l)});
+  if(o.barras)o.barras.d.forEach(x=>{if(x!=null)vals.push(x)});if(o.barras&&o.barras.cero!==false)vals.push(0);
+  (o.lineasH||[]).forEach(l=>vals.push(l.y));
+  let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
+  if(!(hi>lo)){hi=lo+1;lo=lo-1}
+  if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
+  const X=i=>pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
+  const dd=o.decimales!=null?o.decimales:decs(hi-lo);
+  const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();
+  ticks.forEach(t=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(t),y2:Y(t),stroke:regla,"stroke-width":1}));svg.appendChild(S("text",{x:pl-6,y:Y(t)+4,"text-anchor":"end","font-size":12,fill:graf},(o.fmtY||(v=>num(v,dd)))(t)))});
+  (o.bandas||[]).forEach(b=>svg.appendChild(S("rect",{x:X(b.i0),y:pt,width:Math.max(1,X(b.i1)-X(b.i0)),height:H-pt-pb,fill:b.color||C("suave"),opacity:b.opacidad||1})));
+  (o.etiquetasX||[]).forEach(e=>svg.appendChild(S("text",{x:X(e.i),y:H-6,"text-anchor":e.ancla||"middle","font-size":12,fill:graf},e.txt)));
+  if(o.barras){const bw=Math.max(1,(W-pl-pr)/n*0.7);o.barras.d.forEach((x,i)=>{if(x==null)return;const y0=Y(o.barras.base||0),y1=Y(x);const col=typeof o.barras.color==="function"?o.barras.color(i,x):(o.barras.color||graf);svg.appendChild(S("rect",{x:X(i)-bw/2,y:Math.min(y0,y1),width:bw,height:Math.max(0.5,Math.abs(y1-y0)),fill:col,opacity:o.barras.opacidad||1}))})}
+  if(o.velas){const bw=Math.max(1.5,(W-pl-pr)/n*0.62);o.velas.forEach((v,i)=>{const col=v.c>=v.o?alza:baja;svg.appendChild(S("line",{x1:X(i),x2:X(i),y1:Y(v.h),y2:Y(v.l),stroke:col,"stroke-width":1.2}));svg.appendChild(S("rect",{x:X(i)-bw/2,y:Y(Math.max(v.o,v.c)),width:bw,height:Math.max(1,Math.abs(Y(v.o)-Y(v.c))),fill:v.c>=v.o?C("hoja"):col,stroke:col,"stroke-width":1.2}))})}
+  series.forEach(s=>{let d="";let pen=false;s.d.forEach((y,i)=>{if(y==null||!isFinite(y)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1);pen=true});svg.appendChild(S("path",{d,fill:"none",stroke:s.color||tinta,"stroke-width":s.ancho||2.2,"stroke-dasharray":s.punteado?"6 5":null,"stroke-linejoin":"round","stroke-linecap":"round"}))});
+  (o.lineasH||[]).forEach(l=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(l.y),y2:Y(l.y),stroke:l.color||tinta,"stroke-width":l.ancho||1.5,"stroke-dasharray":l.punteado===false?null:"5 4"}));if(l.txt)svg.appendChild(S("text",{x:W-pr-4,y:Y(l.y)-5,"text-anchor":"end","font-size":12,"font-weight":700,fill:l.color||tinta},l.txt))});
+  (o.lineasV||[]).forEach(l=>{svg.appendChild(S("line",{x1:X(l.i),x2:X(l.i),y1:pt,y2:H-pb,stroke:l.color||graf,"stroke-width":1.5,"stroke-dasharray":"4 4"}));if(l.txt)svg.appendChild(S("text",{x:X(l.i)+(l.ancla==="end"?-4:4),y:pt+12,"text-anchor":l.ancla||"start","font-size":12,fill:l.color||graf},l.txt))});
+  (o.marcas||[]).forEach(m=>{const x=X(m.i),y=Y(m.y),col=m.color||tinta;if(m.forma==="arriba")svg.appendChild(S("polygon",{points:`${x},${y-2} ${x-6},${y+9} ${x+6},${y+9}`,fill:col}));else if(m.forma==="abajo")svg.appendChild(S("polygon",{points:`${x},${y+2} ${x-6},${y-9} ${x+6},${y-9}`,fill:col}));else svg.appendChild(S("circle",{cx:x,cy:y,r:m.r||5,fill:col,stroke:C("hoja"),"stroke-width":1.5}));if(m.txt)svg.appendChild(S("text",{x:x,y:m.forma==="abajo"?y-13:y+(m.forma==="arriba"?24:-10),"text-anchor":"middle","font-size":12,"font-weight":700,fill:col},m.txt))});
+  return{X,Y,W,H,pl,pr,pt,pb};
+}
+function quiz(id,preguntas){
+  const qz=$(id);if(!qz)return;
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> "+(p.pista||"Repasa la lección y vuelve a intentar.")}});
+      op.appendChild(b)});
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d)});
+}
+</script>
+<script>
+(function(){
+const r1=azar(3);const cl=[];for(let i=0;i<80;i++){let c;
+  if(i<30)c=100+1.2*Math.sin(i/2.3)+(r1()-0.5)*1.2;else if(i<50)c=104+(i-30)*0.22+(r1()-0.5)*1.4;else if(i<60)c=108+Math.sin(i)*0.8+(r1()-0.5)*0.8;else if(i<64)c=110.3-(i-60)*0.9;else c=106.5+(r1()-0.5)*1.5;cl.push(c)}
+const V=cl.map((c,i)=>{const o=i?cl[i-1]+(r1()-0.5)*0.4:c;return{o,c,h:Math.max(o,c)+r1()*0.9,l:Math.min(o,c)-r1()*0.9}});
+const vol=cl.map((_,i)=>Math.round(1000*(0.75+r1()*0.5)*(i===30?3.3:i>30&&i<34?1.9:i===60?0.6:1)));
+const prom=sma(vol,20);
+function l1(){const d=val("di");grafico($("g1a"),{velas:V,alto:220,lineasH:[{y:102,color:C("grafito"),txt:"techo 1"},{y:109.3,color:C("grafito"),txt:"techo 2"}],marcas:[{i:30,y:V[30].h,forma:"abajo",color:C("alza"),txt:"con volumen"},{i:60,y:V[60].h,forma:"abajo",color:C("baja"),txt:"sin volumen"}],lineasV:[{i:d,color:C("azul")}]});
+  grafico($("g1b"),{barras:{d:vol,color:(i)=>i===d?C("azul"):C("grafito"),opacidad:0.7},series:[{d:prom,color:C("azul"),ancho:2}],yMin:0,alto:130,fmtY:v=>num(v),decimales:0});}
+function l2(){const d=val("di");$("div").textContent=num(d+1);$("m2a").textContent=num(vol[d]);$("m2b").textContent=num(prom[d]);const rv=vol[d]/prom[d];$("m2c").textContent=num(rv,2)+" ×";$("m2c").className=rv>=1.5?"ok":rv<0.7?"mal":"";l1()}
+$("di").addEventListener("input",l2);l2();
+let semilla=1;
+function sesion(s){const r=azar(s*97+5);const n=240;const p=[];let x=100,ancla=100+(r()-0.5)*2;const der=(r()-0.5)*0.03;
+  for(let i=0;i<n;i++){ancla+=der+normal(r)*0.035;x+=(ancla-x)*0.08+normal(r)*0.07;p.push(x)}
+  const v=p.map((_,i)=>Math.round(200*(0.5+r())*(1.8-Math.sin(i/n*Math.PI))));return{p,v}}
+function l3(){const nb=val("nb");$("nbv").textContent=num(nb);const {p,v}=sesion(semilla);const lo=Math.min(...p),hi=Math.max(...p);const paso=(hi-lo)/nb;
+  const bins=Array(nb).fill(0);p.forEach((x,i)=>{bins[Math.min(nb-1,Math.floor((x-lo)/paso))]+=v[i]});
+  const poc=bins.indexOf(Math.max(...bins));const total=bins.reduce((a,b)=>a+b,0);let a=poc,b=poc,acum=bins[poc];
+  while(acum<total*0.7){const arriba=b+1<nb?bins[b+1]:-1,abajo=a-1>=0?bins[a-1]:-1;if(arriba>=abajo){b++;acum+=arriba}else{a--;acum+=abajo}}
+  let pv=0,vv=0;const vw=p.map((x,i)=>{pv+=x*v[i];vv+=v[i];return pv/vv});
+  const svg=$("g3");limpiar(svg);const T=14,B=276,Y=y=>T+(hi+paso*0.2-y)/(hi-lo+paso*0.4)*(B-T),X=i=>50+i/(p.length-1)*370;
+  for(let k=0;k<=4;k++){const y=lo+(hi-lo)*k/4;svg.appendChild(S("line",{x1:50,x2:630,y1:Y(y),y2:Y(y),stroke:C("regla")}));svg.appendChild(S("text",{x:44,y:Y(y)+4,"text-anchor":"end","font-size":12,fill:C("grafito")},num(y,2)))}
+  svg.appendChild(S("path",{d:p.map((x,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(x).toFixed(1)).join(""),fill:"none",stroke:C("tinta"),"stroke-width":1.4}));
+  svg.appendChild(S("path",{d:vw.map((x,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(x).toFixed(1)).join(""),fill:"none",stroke:C("baja"),"stroke-width":2.2}));
+  const mx=Math.max(...bins);bins.forEach((q,k)=>{const y0=Y(lo+k*paso),y1=Y(lo+(k+1)*paso);svg.appendChild(S("rect",{x:440,y:y1+0.5,width:Math.max(1,q/mx*185),height:Math.max(1,y0-y1-1),fill:k===poc?C("marcador"):k>=a&&k<=b?C("azul"):C("regla"),opacity:k===poc?1:0.75}))});
+  svg.appendChild(S("text",{x:440,y:292,"font-size":12,fill:C("grafito")},"volumen por precio"));svg.appendChild(S("text",{x:50,y:292,"font-size":12,fill:C("grafito")},"apertura → cierre"));
+  $("m3a").textContent=num(lo+(poc+0.5)*paso,2);$("m3b").textContent=num(lo+a*paso,2)+" a "+num(lo+(b+1)*paso,2);$("m3c").textContent=num(vw[vw.length-1],2);}
+$("nb").addEventListener("input",l3);$("otra").addEventListener("click",()=>{semilla++;l3()});l3();alTema(()=>{l1();l3()});
+quiz("quiz",[
+{q:"Una acción rompe su máximo con un volumen relativo de 0,5. ¿Qué indica?",o:["Una ruptura muy confiable","Poca participación: la ruptura tiene poco respaldo","Que el volumen está mal calculado"],c:1,e:"La mitad del volumen normal sugiere que pocos participantes empujaron la subida."},
+{q:"¿Qué es el punto de control en el perfil de volumen?",o:["El precio de cierre","El precio donde más se negoció","El precio más alto del día"],c:1,e:"Es el nivel con más volumen: el que el mercado aceptó como más justo."},
+{q:"¿Qué es el VWAP?",o:["El precio promedio ponderado por volumen","El volumen promedio de 20 días","El máximo menos el mínimo"],c:0,e:"Promedia cada precio según cuánto se negoció ahí."},
+{q:"El área de valor contiene…",o:["El 100 % del volumen","El 70 % del volumen alrededor del punto de control","Solo el volumen de la apertura"],c:1,e:"Por convención, es la zona que concentra el 70 % del volumen de la sesión."}
+]);
+})();
+</script>
+</body>
+</html>
