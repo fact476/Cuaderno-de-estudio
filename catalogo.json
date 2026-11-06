@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:29:35+00:00",
+  "generado": "2026-11-06T01:34:04+00:00",
   "totales": {
     "temas": 35,
-    "listos": 30,
+    "listos": 35,
     "progreso": 0
   },
   "rutas": [
@@ -299,31 +299,41 @@
           "titulo": "Contraseñas, gestores y doble factor",
           "archivo": "seguridad/contrasenas-y-2fa.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Por qué la longitud vale más que los símbolos, qué pasa cuando repites una contraseña, cómo funciona un gestor y qué tipos de doble factor protegen de verdad."
         },
         {
           "titulo": "Endurecer un VPS: SSH, firewall y fail2ban",
           "archivo": "seguridad/endurecer-vps.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Los pasos básicos para proteger un servidor Debian o Ubuntu recién creado: actualizar, usuario sin root, llaves SSH, firewall, fail2ban y actualizaciones automáticas, con un simulador de ataques."
         },
         {
           "titulo": "Guardar llaves y tokens sin exponerlos",
           "archivo": "seguridad/secretos-y-llaves.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué cuenta como secreto, un juego de qué se puede subir a un repositorio público, cómo usar variables de entorno y .gitignore, y qué hacer en el primer minuto si un secreto se filtra."
         },
         {
           "titulo": "Copias de seguridad y recuperación",
           "archivo": "seguridad/copias-de-seguridad.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "La regla 3-2-1, un simulador de desastres para ver qué copia te salva de qué, y por qué una copia que nunca restauraste no cuenta."
         },
         {
           "titulo": "Phishing y fraudes dirigidos a inversionistas",
           "archivo": "seguridad/fraudes-a-inversionistas.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Las señales de alerta de los fraudes más comunes, un ejercicio para clasificar mensajes de ejemplo, un simulador de esquema Ponzi y cómo verificar una entidad antes de mandarle dinero."
         }
       ]
     }
