@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stops por ATR y stops que suben (trailing)</title>
+<meta name="description" content="Stop fijo, stop por ATR y stop móvil comparados sobre el mismo gráfico, y el compromiso entre que el ruido te saque y perder demasiado.">
+<meta name="tutorial:nivel" content="intermedio">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --azul:#1b62ad; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--azul:#62a6ef;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px;overflow-wrap:break-word}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a,.siguiente a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(36px,7vw,68px);line-height:.98;letter-spacing:-.03em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:66ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+@media (max-width:480px){.leccion{padding:16px 14px}body{font-size:16px}}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.aviso{border-left:4px solid var(--baja);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--suave);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--suave);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+select,input[type=number],input[type=text]{font:inherit;font-size:16px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--regla);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--tinta);flex:none;margin-top:3px}
+.ctl{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr) 78px;gap:6px 12px;align-items:center;margin:10px 0;font-size:15px}
+.ctl b{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+@media (max-width:520px){.ctl{grid-template-columns:minmax(0,1fr) 78px}.ctl>span:first-child{grid-column:1 / -1}.ctl input[type=range]{grid-column:1}}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 14px;margin:12px 0}
+.campos label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--grafito)}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.dos{grid-template-columns:minmax(0,1fr)}}
+.grafico{display:block;width:100%;height:auto;margin:10px 0}
+svg text{font-family:var(--f-texto)}
+.botones,.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px;min-width:0}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:19px;overflow-wrap:anywhere}
+.medidor b.ok,.ok{color:var(--alza)}
+.medidor b.mal,.mal{color:var(--baja)}
+.ok,.mal{font-weight:700}
+.tabla-scroll{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.tarjeta{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:12px 14px;min-width:0}
+.tarjeta h3{margin-top:0}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--grafito)}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.lista-chk{list-style:none;padding:0}
+.lista-chk li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--regla)}
+.etiqueta{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--suave)}
+.etiqueta.ok{background:var(--alza);color:var(--hoja)}
+.etiqueta.mal{background:var(--baja);color:var(--hoja)}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+.siguiente{margin-top:28px;font-size:17px}
+footer{margin-top:28px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+<nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+<h1>Stops por ATR y stops que suben (trailing)</h1>
+<p>Un stop tiene dos trabajos que se pelean entre sí: sacarte rápido cuando te equivocas y no sacarte por el ruido normal del precio. La forma de ponerlo decide cuál de los dos gana.</p>
+
+<section class="leccion" aria-labelledby="l1">
+  <h2 id="l1">1. Tres formas de poner el stop</h2>
+  <div class="tarjetas">
+    <div class="tarjeta"><h3>Fijo en porcentaje</h3><p>«Salgo si cae 5 %.» Sencillo, pero ignora si el activo es tranquilo o nervioso.</p></div>
+    <div class="tarjeta"><h3>Por ATR</h3><p>«Salgo si cae 2 veces lo que se mueve normalmente.» Se adapta a la volatilidad de cada activo.</p></div>
+    <div class="tarjeta"><h3>Móvil (trailing)</h3><p>«Mi stop sube detrás del precio, a 3 ATR del máximo alcanzado, y nunca baja.» Protege la ganancia y deja correr la tendencia.</p></div>
+  </div>
+</section>
+
+<section class="leccion" aria-labelledby="l2">
+  <h2 id="l2">2. Simulador: compras el día 1</h2>
+  <p>Compras a 100 al empezar el gráfico. Elige qué hace el precio y cómo pones el stop.</p>
+  <div class="seg" role="group" aria-label="Escenario"><button id="e0" class="on">Sube y después corrige</button><button id="e1">Cae desde el inicio</button><button id="e2">Ruido y después sube</button></div>
+  <div class="seg" role="group" aria-label="Tipo de stop"><button id="s0">Fijo %</button><button id="s1">Por ATR</button><button id="s2" class="on">Móvil por ATR</button></div>
+  <label class="ctl"><span id="pn">Múltiplo de ATR</span><input type="range" id="pa" min="1" max="5" step="0.5" value="3"><b id="pav"></b></label>
+  <svg id="g2" class="grafico" role="img" aria-labelledby="g2t"><title id="g2t">Precio después de la compra con la línea del stop y el punto de salida.</title></svg>
+  <div class="medidores">
+    <div class="medidor"><span>Sales el día</span><b id="m2a"></b></div>
+    <div class="medidor"><span>Precio de salida</span><b id="m2b"></b></div>
+    <div class="medidor"><span>Resultado</span><b id="m2c"></b></div>
+  </div>
+  <h3>El mismo escenario con distintos múltiplos</h3>
+  <div class="tabla-scroll"><table><thead><tr><th>Stop</th><th class="n">Sale el día</th><th class="n">Resultado</th></tr></thead><tbody id="t2"></tbody></table></div>
+  <p class="clave">Un stop muy cerca te saca en la primera corrección normal. Uno muy lejos aguanta el ruido, pero cuando te equivocas pierdes mucho. Entre 2 y 3 ATR es un punto de partida común, no una ley.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l3">
+  <h2 id="l3">3. Reglas para el stop móvil</h2>
+  <ul>
+    <li>El stop solo se mueve a tu favor. Si el precio retrocede, el stop se queda quieto.</li>
+    <li>Se calcula con el máximo alcanzado desde la entrada menos un múltiplo del ATR (a veces se llama «stop chandelier»).</li>
+    <li>Cuanto más cerca lo pongas, más ganancia aseguras, pero más tendencias abandonas antes de tiempo.</li>
+    <li>Se actualiza al cierre del día, no con cada movimiento del precio, para no reaccionar al ruido intradía.</li>
+  </ul>
+  <p class="clave">El stop inicial limita la pérdida. El stop móvil limita cuánto de la ganancia devuelves.</p>
+</section>
+
+<section class="leccion" aria-labelledby="repaso"><h2 id="repaso">Comprueba que entendiste</h2><div id="quiz"></div></section>
+<nav class="siguiente" aria-label="Siguiente tema">Siguiente tema: <a href="multiplos-r.html">Múltiplos R y expectativa matemática</a></nav>
+<footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=v=>getComputedStyle(document.documentElement).getPropertyValue("--"+v).trim();
+const val=id=>parseFloat($(id).value);
+const num=(n,d=0)=>Number(n).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=(n,d=0)=>(n<0?"−":"")+"US$ "+num(Math.abs(n),d);
+const pct=(n,d=1)=>num(n,d)+" %";
+const sgn=(n,d=0)=>(n>0?"+":n<0?"−":"")+num(Math.abs(n),d);
+const NS="http://www.w3.org/2000/svg";
+function S(tag,a,t){const e=document.createElementNS(NS,tag);for(const k in a)if(a[k]!==undefined&&a[k]!==null)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function limpiar(svg){[...svg.childNodes].forEach(n=>{if(!(n.nodeName&&n.nodeName.toLowerCase()==="title"))svg.removeChild(n)})}
+function enlazar(ids,fn){ids.forEach(id=>{const e=$(id);e.addEventListener(e.tagName==="BUTTON"?"click":"input",fn);if(e.tagName==="SELECT")e.addEventListener("change",fn)})}
+const redibujos=[];
+function alTema(fn){redibujos.push(fn)}
+try{window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>redibujos.forEach(f=>f()))}catch(e){}
+let anchoPrevio=window.innerWidth,tRes=null;window.addEventListener("resize",()=>{clearTimeout(tRes);tRes=setTimeout(()=>{if(Math.abs(window.innerWidth-anchoPrevio)>40){anchoPrevio=window.innerWidth;redibujos.forEach(f=>f())}},200)});
+function fz(svg,px){const vb=(svg.viewBox&&svg.viewBox.baseVal&&svg.viewBox.baseVal.width)||640;const cw=svg.getBoundingClientRect().width||vb;return Math.round(px*Math.max(1,vb/cw*0.8))}
+function azar(seed){let a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function caminata(n,o={}){const r=azar(o.seed||1);let p=o.inicio||100;const out=[p];for(let i=1;i<n;i++){p=Math.max(1,p*(1+((o.deriva||0)+normal(r)*(o.vol||1))/100));out.push(p)}return out}
+function velasSim(n,o={}){const r=azar(o.seed||1);let c=o.inicio||100;const out=[];for(let i=0;i<n;i++){const vol=(o.volDe?o.volDe(i):o.vol||1.2);const op=c*(1+normal(r)*vol*0.25/100);const cl=Math.max(1,op*(1+((o.deriva||0)+normal(r)*vol)/100));const h=Math.max(op,cl)*(1+r()*vol*0.6/100),l=Math.min(op,cl)*(1-r()*vol*0.6/100);const v=Math.round((o.volumen||1000)*(0.6+r()*0.8)*(1+Math.abs(cl-op)/op*40));out.push({o:op,h,l,c:cl,v});c=cl}return out}
+function sma(a,p){return a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((s,x)=>s+x,0)/p)}
+function ema(a,p){const k=2/(p+1);let e=null;return a.map((x,i)=>{if(x==null)return null;e=e==null?x:x*k+e*(1-k);return i<p-1?null:e})}
+function rsi(c,p=14){const out=[null];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];const up=Math.max(d,0),dn=Math.max(-d,0);if(i<=p){g+=up/p;l+=dn/p;out.push(i===p?(l===0?100:100-100/(1+g/l)):null)}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p;out.push(l===0?100:100-100/(1+g/l))}}return out}
+function rangoReal(v){return v.map((x,i)=>i===0?x.h-x.l:Math.max(x.h-x.l,Math.abs(x.h-v[i-1].c),Math.abs(x.l-v[i-1].c)))}
+function atr(v,p=14){const tr=rangoReal(v);const out=[];let a=null;tr.forEach((t,i)=>{if(i<p-1){out.push(null);return}if(a==null)a=tr.slice(0,p).reduce((s,x)=>s+x,0)/p;else a=(a*(p-1)+t)/p;out.push(a)});return out}
+function decs(r){return r<2?2:r<30?1:0}
+function grafico(svg,o){
+  limpiar(svg);
+  const cw=svg.getBoundingClientRect().width;const W=o.ancho||(cw>0?Math.max(320,Math.min(760,Math.round(cw))):640),H=o.alto||260,pl=o.pl||50,pr=o.pr||14,pt=o.pt||14,pb=o.pb||24;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  const series=o.series||[];const n=o.n||(o.velas?o.velas.length:(series[0]?series[0].d.length:(o.barras?o.barras.d.length:2)));
+  let vals=[];series.forEach(s=>s.d.forEach(x=>{if(x!=null&&isFinite(x))vals.push(x)}));
+  if(o.velas)o.velas.forEach(v=>{vals.push(v.h,v.l)});
+  if(o.barras)o.barras.d.forEach(x=>{if(x!=null)vals.push(x)});if(o.barras&&o.barras.cero!==false)vals.push(0);
+  (o.lineasH||[]).forEach(l=>vals.push(l.y));
+  let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
+  if(!(hi>lo)){hi=lo+1;lo=lo-1}
+  if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
+  const X=i=>pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
+  const dd=o.decimales!=null?o.decimales:decs(hi-lo);
+  const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();
+  ticks.forEach(t=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(t),y2:Y(t),stroke:regla,"stroke-width":1}));svg.appendChild(S("text",{x:pl-6,y:Y(t)+4,"text-anchor":"end","font-size":12,fill:graf},(o.fmtY||(v=>num(v,dd)))(t)))});
+  (o.bandas||[]).forEach(b=>svg.appendChild(S("rect",{x:X(b.i0),y:pt,width:Math.max(1,X(b.i1)-X(b.i0)),height:H-pt-pb,fill:b.color||C("suave"),opacity:b.opacidad||1})));
+  (o.etiquetasX||[]).forEach(e=>svg.appendChild(S("text",{x:X(e.i),y:H-6,"text-anchor":e.ancla||"middle","font-size":12,fill:graf},e.txt)));
+  if(o.barras){const bw=Math.max(1,(W-pl-pr)/n*0.7);o.barras.d.forEach((x,i)=>{if(x==null)return;const y0=Y(o.barras.base||0),y1=Y(x);const col=typeof o.barras.color==="function"?o.barras.color(i,x):(o.barras.color||graf);svg.appendChild(S("rect",{x:X(i)-bw/2,y:Math.min(y0,y1),width:bw,height:Math.max(0.5,Math.abs(y1-y0)),fill:col,opacity:o.barras.opacidad||1}))})}
+  if(o.velas){const bw=Math.max(1.5,(W-pl-pr)/n*0.62);o.velas.forEach((v,i)=>{const col=v.c>=v.o?alza:baja;svg.appendChild(S("line",{x1:X(i),x2:X(i),y1:Y(v.h),y2:Y(v.l),stroke:col,"stroke-width":1.2}));svg.appendChild(S("rect",{x:X(i)-bw/2,y:Y(Math.max(v.o,v.c)),width:bw,height:Math.max(1,Math.abs(Y(v.o)-Y(v.c))),fill:v.c>=v.o?C("hoja"):col,stroke:col,"stroke-width":1.2}))})}
+  series.forEach(s=>{let d="";let pen=false;s.d.forEach((y,i)=>{if(y==null||!isFinite(y)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1);pen=true});svg.appendChild(S("path",{d,fill:"none",stroke:s.color||tinta,"stroke-width":s.ancho||2.2,"stroke-dasharray":s.punteado?"6 5":null,"stroke-linejoin":"round","stroke-linecap":"round"}))});
+  (o.lineasH||[]).forEach(l=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(l.y),y2:Y(l.y),stroke:l.color||tinta,"stroke-width":l.ancho||1.5,"stroke-dasharray":l.punteado===false?null:"5 4"}));if(l.txt)svg.appendChild(S("text",{x:W-pr-4,y:Y(l.y)-5,"text-anchor":"end","font-size":12,"font-weight":700,fill:l.color||tinta},l.txt))});
+  (o.lineasV||[]).forEach(l=>{svg.appendChild(S("line",{x1:X(l.i),x2:X(l.i),y1:pt,y2:H-pb,stroke:l.color||graf,"stroke-width":1.5,"stroke-dasharray":"4 4"}));if(l.txt)svg.appendChild(S("text",{x:X(l.i)+(l.ancla==="end"?-4:4),y:pt+12,"text-anchor":l.ancla||"start","font-size":12,fill:l.color||graf},l.txt))});
+  (o.marcas||[]).forEach(m=>{const x=X(m.i),y=Y(m.y),col=m.color||tinta;if(m.forma==="arriba")svg.appendChild(S("polygon",{points:`${x},${y-2} ${x-6},${y+9} ${x+6},${y+9}`,fill:col}));else if(m.forma==="abajo")svg.appendChild(S("polygon",{points:`${x},${y+2} ${x-6},${y-9} ${x+6},${y-9}`,fill:col}));else svg.appendChild(S("circle",{cx:x,cy:y,r:m.r||5,fill:col,stroke:C("hoja"),"stroke-width":1.5}));if(m.txt)svg.appendChild(S("text",{x:x,y:m.forma==="abajo"?y-13:y+(m.forma==="arriba"?24:-10),"text-anchor":"middle","font-size":12,"font-weight":700,fill:col},m.txt))});
+  return{X,Y,W,H,pl,pr,pt,pb};
+}
+function quiz(id,preguntas){
+  const qz=$(id);if(!qz)return;
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> "+(p.pista||"Repasa la lección y vuelve a intentar.")}});
+      op.appendChild(b)});
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d)});
+}
+</script>
+<script>
+(function(){
+let esc=0,tipo=2;
+function escenario(e){const base=velasSim(90,{seed:[14,22,35][e],vol:0.9,deriva:0});const f=100/base[0].o;
+  const g=i=>e===0?(i<60?1+0.005*i:1.3*(1-0.007*(i-60))):e===1?1-0.005*i:(i<30?1:1+0.006*(i-30));
+  return base.map((x,i)=>({o:x.o*f*g(i),h:x.h*f*g(i),l:x.l*f*g(i),c:x.c*f*g(i)}))}
+function simular(v,t,par){const a=atr(v,14);const a0=a.find(x=>x!=null);const stops=[];let st=t===0?100*(1-par/100):100-par*a0;let maxC=100;
+  for(let i=0;i<v.length;i++){stops.push(st);if(v[i].l<=st)return{i,precio:Math.min(st,v[i].o),stops};maxC=Math.max(maxC,v[i].c);if(t===2){const ai=a[i]!=null?a[i]:a0;st=Math.max(st,maxC-par*ai)}}
+  return{i:-1,precio:v[v.length-1].c,stops}}
+function l2(){const par=val("pa");$("pn").textContent=tipo===0?"Caída máxima":"Múltiplo de ATR";$("pa").min=tipo===0?2:1;$("pa").max=tipo===0?15:5;$("pa").step=tipo===0?1:0.5;
+  const p=val("pa");$("pav").textContent=tipo===0?num(p)+" %":num(p,1)+" × ATR";const v=escenario(esc);const r=simular(v,tipo,p);
+  grafico($("g2"),{velas:v,series:[{d:r.stops.concat(Array(v.length-r.stops.length).fill(null)),color:C("baja"),ancho:2,punteado:true}],lineasH:[{y:100,color:C("grafito"),txt:"compra 100"}],marcas:r.i>=0?[{i:r.i,y:r.precio,color:C("marcador"),r:7,txt:"sale"}]:[],alto:250});
+  const res=r.precio-100;$("m2a").textContent=r.i>=0?num(r.i+1):"sigue adentro";$("m2b").textContent=num(r.precio,2);$("m2c").textContent=sgn(res,1)+" %";$("m2c").className=res>=0?"ok":"mal";
+  const filas=tipo===0?[3,5,8,12]:[1,2,3,4];$("t2").innerHTML=filas.map(k=>{const s=simular(v,tipo,k);const x=s.precio-100;return`<tr${k==p?' class="actual"':""}><td>${tipo===0?k+" %":k+" × ATR"}</td><td class="n">${s.i>=0?s.i+1:"sigue"}</td><td class="n ${x>=0?"ok":"mal"}">${sgn(x,1)} %</td></tr>`}).join("");}
+[0,1,2].forEach(k=>{$("e"+k).addEventListener("click",()=>{esc=k;[0,1,2].forEach(j=>$("e"+j).classList.toggle("on",j===k));l2()});
+  $("s"+k).addEventListener("click",()=>{tipo=k;[0,1,2].forEach(j=>$("s"+j).classList.toggle("on",j===k));$("pa").value=k===0?6:k===1?2:3;l2()})});
+$("pa").addEventListener("input",l2);l2();alTema(l2);
+quiz("quiz",[
+{q:"¿Qué ventaja tiene un stop por ATR frente a uno fijo en porcentaje?",o:["Se adapta a qué tan nervioso es el activo","Nunca se activa","Garantiza ganancia"],c:0,e:"El ATR mide el movimiento normal, así que el stop queda más lejos en activos nerviosos y más cerca en tranquilos."},
+{q:"El precio subió de 100 a 120 y luego bajó a 115. ¿Qué hace un stop móvil?",o:["Baja con el precio","Se queda donde estaba cuando el precio llegó a 120","Desaparece"],c:1,e:"El stop móvil solo sube. Cuando el precio retrocede, se queda quieto."},
+{q:"¿Cuál es el riesgo de un stop demasiado cerca?",o:["Que el ruido normal te saque antes de que la idea funcione","Que pierdas demasiado","Que no se ejecute nunca"],c:0,e:"Una corrección normal lo toca, aunque la tendencia siga intacta."}
+]);
+})();
+</script>
+</body>
+</html>

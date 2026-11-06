@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:10:07+00:00",
+  "generado": "2026-11-06T01:16:02+00:00",
   "totales": {
     "temas": 35,
-    "listos": 13,
+    "listos": 18,
     "progreso": 0
   },
   "rutas": [
@@ -111,31 +111,41 @@
           "titulo": "Tamaño de posición por riesgo fijo",
           "archivo": "riesgo/tamano-de-posicion.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Cuántas acciones comprar a partir de cuánto estás dispuesto a perder, con una calculadora y una simulación de por qué el porcentaje fijo te mantiene en el juego."
         },
         {
           "titulo": "Stops por ATR y stops que suben (trailing)",
           "archivo": "riesgo/stops-atr-trailing.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Stop fijo, stop por ATR y stop móvil comparados sobre el mismo gráfico, y el compromiso entre que el ruido te saque y perder demasiado."
         },
         {
           "titulo": "Múltiplos R y expectativa matemática",
           "archivo": "riesgo/multiplos-r.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Medir cada operación en unidades de riesgo, calcular si una estrategia gana a la larga y ver cuánta suerte cabe en 100 operaciones."
         },
         {
           "titulo": "Rachas perdedoras y caída máxima",
           "archivo": "riesgo/rachas-y-drawdown.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Por qué las rachas largas de pérdidas son normales, cómo se mide la caída desde el máximo y la matemática cruel de recuperar lo perdido."
         },
         {
           "titulo": "Correlación y diversificación de la cartera",
           "archivo": "riesgo/correlacion.html",
           "nivel": "avanzado",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué mide la correlación entre dos activos, cuánto riesgo quita diversificar según lo parecidos que sean y por qué en las crisis todo cae junto."
         }
       ]
     },
