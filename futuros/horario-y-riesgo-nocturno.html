@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercado casi 24 horas y riesgo nocturno</title>
+<meta name="description" content="El horario de los futuros del S&amp;P 500 en hora de Colombia, cómo cambia la liquidez durante el día y cuánto puede moverse una posición que dejas abierta de noche.">
+<meta name="tutorial:nivel" content="avanzado">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --azul:#1b62ad; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--azul:#62a6ef;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px;overflow-wrap:break-word}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a,.siguiente a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(36px,7vw,68px);line-height:.98;letter-spacing:-.03em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:66ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+@media (max-width:480px){.leccion{padding:16px 14px}body{font-size:16px}}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.aviso{border-left:4px solid var(--baja);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--suave);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--suave);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+select,input[type=number],input[type=text]{font:inherit;font-size:16px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--regla);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--tinta);flex:none;margin-top:3px}
+.ctl{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr) 78px;gap:6px 12px;align-items:center;margin:10px 0;font-size:15px}
+.ctl b{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+@media (max-width:520px){.ctl{grid-template-columns:minmax(0,1fr) 78px}.ctl>span:first-child{grid-column:1 / -1}.ctl input[type=range]{grid-column:1}}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 14px;margin:12px 0}
+.campos label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--grafito)}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.dos{grid-template-columns:minmax(0,1fr)}}
+.grafico{display:block;width:100%;height:auto;margin:10px 0}
+svg text{font-family:var(--f-texto)}
+.botones,.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px;min-width:0}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:19px;overflow-wrap:anywhere}
+.medidor b.ok,.ok{color:var(--alza)}
+.medidor b.mal,.mal{color:var(--baja)}
+.ok,.mal{font-weight:700}
+.tabla-scroll{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.tarjeta{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:12px 14px;min-width:0}
+.tarjeta h3{margin-top:0}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--grafito)}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.lista-chk{list-style:none;padding:0}
+.lista-chk li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--regla)}
+.etiqueta{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--suave)}
+.etiqueta.ok{background:var(--alza);color:var(--hoja)}
+.etiqueta.mal{background:var(--baja);color:var(--hoja)}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+.siguiente{margin-top:28px;font-size:17px}
+footer{margin-top:28px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+<nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+<h1>Mercado casi 24 horas y riesgo nocturno</h1>
+<p>Los futuros del S&amp;P 500 se negocian casi todo el día, de domingo en la tarde a viernes en la tarde. Que se pueda operar a las 2 de la mañana no significa que sea buena idea: la liquidez y los riesgos cambian mucho según la hora.</p>
+
+<section class="leccion" aria-labelledby="l1">
+  <h2 id="l1">1. El reloj del mercado en hora de Bogotá</h2>
+  <p>El horario oficial está en hora de Chicago: abre el domingo a las 5:00 p. m. y cierra el viernes a las 4:00 p. m., con una pausa diaria de una hora, de 4:00 a 5:00 p. m., de lunes a jueves. Chicago cambia la hora en el verano de Estados Unidos y Colombia no, así que en Bogotá todo se corre una hora según la época.</p>
+  <div class="seg" role="group" aria-label="Época del año"><button id="inv">Invierno en EE. UU.</button><button id="ver">Verano en EE. UU.</button></div>
+  <svg id="g1" class="grafico" role="img" aria-labelledby="g1t"><title id="g1t">Un día de 24 horas en hora de Bogotá con las franjas del mercado y una curva ilustrativa de liquidez.</title></svg>
+  <div class="tabla-scroll"><table><thead><tr><th>Momento</th><th>Bogotá</th><th>Qué pasa</th></tr></thead><tbody id="t1"></tbody></table></div>
+  <p class="clave">La mayor liquidez está entre los datos económicos de la mañana y el cierre de la bolsa de acciones. De noche hay mucho menos volumen: los spreads se amplían y una noticia mueve más el precio.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l2">
+  <h2 id="l2">2. ¿Cuánto se mueve una noche?</h2>
+  <p>Este simulador genera 1.000 noches ficticias: la mayoría tranquilas y algunas con noticias fuertes. Mira qué pasa con una posición que dejas abierta del cierre a la apertura del día siguiente.</p>
+  <label class="ctl"><span>Contratos MES</span><input type="range" id="nc" min="1" max="10" step="1" value="2"><b id="ncv"></b></label>
+  <label class="ctl"><span>Pérdida que aguantas</span><input type="range" id="lim" min="50" max="1500" step="50" value="300"><b id="limv"></b></label>
+  <svg id="g2" class="grafico" role="img" aria-labelledby="g2t"><title id="g2t">Distribución del resultado de mil noches simuladas.</title></svg>
+  <div class="medidores">
+    <div class="medidor"><span>Noches que superan tu límite</span><b id="m2a" class="mal"></b></div>
+    <div class="medidor"><span>Peor noche</span><b id="m2b" class="mal"></b></div>
+    <div class="medidor"><span>Noche típica</span><b id="m2c"></b></div>
+  </div>
+  <p class="clave">La noche típica es tranquila, pero las pocas noches malas son las que deciden el año. Fíjate en la cola izquierda: ahí un stop puede ejecutarse muy lejos de donde lo pusiste.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l3">
+  <h2 id="l3">3. El fin de semana es la noche más larga</h2>
+  <p>Del viernes a las 4:00 p. m. de Chicago al domingo a las 5:00 p. m. el mercado está cerrado unas 49 horas. Todo lo que pase en el mundo en ese tiempo se refleja de golpe en la reapertura del domingo, como un hueco.</p>
+  <ul>
+    <li>Pocas personas operan en la reapertura del domingo: el primer precio puede saltar tu stop.</li>
+    <li>En festivos de Estados Unidos el mercado cierra antes o no abre. Revisa el calendario de la bolsa.</li>
+    <li>Los datos de empleo, inflación y las decisiones de tasas de interés suelen producir los movimientos más fuertes del mes.</li>
+  </ul>
+</section>
+
+<section class="leccion" aria-labelledby="l4">
+  <h2 id="l4">4. Prácticas para la noche</h2>
+  <ul>
+    <li>Reduce el tamaño si vas a mantener una posición de noche o el fin de semana.</li>
+    <li>Revisa el margen nocturno de tu bróker: suele ser mayor que el de la sesión.</li>
+    <li>Evita órdenes a mercado en horas de poco volumen; usa límites.</li>
+    <li>Conoce la hora de los datos económicos del día y no te sorprendas con posiciones grandes justo antes.</li>
+    <li>Si tienes un sistema automático, decide por escrito qué hace en la pausa diaria y en la reapertura del domingo.</li>
+  </ul>
+</section>
+
+<section class="leccion" aria-labelledby="repaso"><h2 id="repaso">Comprueba que entendiste</h2><div id="quiz"></div></section>
+<nav class="siguiente" aria-label="Siguiente tema">Siguiente tema: <a href="../automatizacion/datos-con-pandas.html">Datos de mercado con Python y pandas</a></nav>
+<footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=v=>getComputedStyle(document.documentElement).getPropertyValue("--"+v).trim();
+const val=id=>parseFloat($(id).value);
+const num=(n,d=0)=>Number(n).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=(n,d=0)=>(n<0?"−":"")+"US$ "+num(Math.abs(n),d);
+const pct=(n,d=1)=>num(n,d)+" %";
+const sgn=(n,d=0)=>(n>0?"+":n<0?"−":"")+num(Math.abs(n),d);
+const NS="http://www.w3.org/2000/svg";
+function S(tag,a,t){const e=document.createElementNS(NS,tag);for(const k in a)if(a[k]!==undefined&&a[k]!==null)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function limpiar(svg){[...svg.childNodes].forEach(n=>{if(!(n.nodeName&&n.nodeName.toLowerCase()==="title"))svg.removeChild(n)})}
+function enlazar(ids,fn){ids.forEach(id=>{const e=$(id);e.addEventListener(e.tagName==="BUTTON"?"click":"input",fn);if(e.tagName==="SELECT")e.addEventListener("change",fn)})}
+const redibujos=[];
+function alTema(fn){redibujos.push(fn)}
+try{window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>redibujos.forEach(f=>f()))}catch(e){}
+let anchoPrevio=window.innerWidth,tRes=null;window.addEventListener("resize",()=>{clearTimeout(tRes);tRes=setTimeout(()=>{if(Math.abs(window.innerWidth-anchoPrevio)>40){anchoPrevio=window.innerWidth;redibujos.forEach(f=>f())}},200)});
+function fz(svg,px){const vb=(svg.viewBox&&svg.viewBox.baseVal&&svg.viewBox.baseVal.width)||640;const cw=svg.getBoundingClientRect().width||vb;return Math.round(px*Math.max(1,vb/cw*0.8))}
+function azar(seed){let a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function caminata(n,o={}){const r=azar(o.seed||1);let p=o.inicio||100;const out=[p];for(let i=1;i<n;i++){p=Math.max(1,p*(1+((o.deriva||0)+normal(r)*(o.vol||1))/100));out.push(p)}return out}
+function velasSim(n,o={}){const r=azar(o.seed||1);let c=o.inicio||100;const out=[];for(let i=0;i<n;i++){const vol=(o.volDe?o.volDe(i):o.vol||1.2);const op=c*(1+normal(r)*vol*0.25/100);const cl=Math.max(1,op*(1+((o.deriva||0)+normal(r)*vol)/100));const h=Math.max(op,cl)*(1+r()*vol*0.6/100),l=Math.min(op,cl)*(1-r()*vol*0.6/100);const v=Math.round((o.volumen||1000)*(0.6+r()*0.8)*(1+Math.abs(cl-op)/op*40));out.push({o:op,h,l,c:cl,v});c=cl}return out}
+function sma(a,p){return a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((s,x)=>s+x,0)/p)}
+function ema(a,p){const k=2/(p+1);let e=null;return a.map((x,i)=>{if(x==null)return null;e=e==null?x:x*k+e*(1-k);return i<p-1?null:e})}
+function rsi(c,p=14){const out=[null];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];const up=Math.max(d,0),dn=Math.max(-d,0);if(i<=p){g+=up/p;l+=dn/p;out.push(i===p?(l===0?100:100-100/(1+g/l)):null)}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p;out.push(l===0?100:100-100/(1+g/l))}}return out}
+function rangoReal(v){return v.map((x,i)=>i===0?x.h-x.l:Math.max(x.h-x.l,Math.abs(x.h-v[i-1].c),Math.abs(x.l-v[i-1].c)))}
+function atr(v,p=14){const tr=rangoReal(v);const out=[];let a=null;tr.forEach((t,i)=>{if(i<p-1){out.push(null);return}if(a==null)a=tr.slice(0,p).reduce((s,x)=>s+x,0)/p;else a=(a*(p-1)+t)/p;out.push(a)});return out}
+function decs(r){return r<2?2:r<30?1:0}
+function grafico(svg,o){
+  limpiar(svg);
+  const cw=svg.getBoundingClientRect().width;const W=o.ancho||(cw>0?Math.max(320,Math.min(760,Math.round(cw))):640),H=o.alto||260,pl=o.pl||50,pr=o.pr||14,pt=o.pt||14,pb=o.pb||24;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  const series=o.series||[];const n=o.n||(o.velas?o.velas.length:(series[0]?series[0].d.length:(o.barras?o.barras.d.length:2)));
+  let vals=[];series.forEach(s=>s.d.forEach(x=>{if(x!=null&&isFinite(x))vals.push(x)}));
+  if(o.velas)o.velas.forEach(v=>{vals.push(v.h,v.l)});
+  if(o.barras)o.barras.d.forEach(x=>{if(x!=null)vals.push(x)});if(o.barras&&o.barras.cero!==false)vals.push(0);
+  (o.lineasH||[]).forEach(l=>vals.push(l.y));
+  let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
+  if(!(hi>lo)){hi=lo+1;lo=lo-1}
+  if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
+  const X=i=>pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
+  const dd=o.decimales!=null?o.decimales:decs(hi-lo);
+  const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();
+  ticks.forEach(t=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(t),y2:Y(t),stroke:regla,"stroke-width":1}));svg.appendChild(S("text",{x:pl-6,y:Y(t)+4,"text-anchor":"end","font-size":12,fill:graf},(o.fmtY||(v=>num(v,dd)))(t)))});
+  (o.bandas||[]).forEach(b=>svg.appendChild(S("rect",{x:X(b.i0),y:pt,width:Math.max(1,X(b.i1)-X(b.i0)),height:H-pt-pb,fill:b.color||C("suave"),opacity:b.opacidad||1})));
+  (o.etiquetasX||[]).forEach(e=>svg.appendChild(S("text",{x:X(e.i),y:H-6,"text-anchor":e.ancla||"middle","font-size":12,fill:graf},e.txt)));
+  if(o.barras){const bw=Math.max(1,(W-pl-pr)/n*0.7);o.barras.d.forEach((x,i)=>{if(x==null)return;const y0=Y(o.barras.base||0),y1=Y(x);const col=typeof o.barras.color==="function"?o.barras.color(i,x):(o.barras.color||graf);svg.appendChild(S("rect",{x:X(i)-bw/2,y:Math.min(y0,y1),width:bw,height:Math.max(0.5,Math.abs(y1-y0)),fill:col,opacity:o.barras.opacidad||1}))})}
+  if(o.velas){const bw=Math.max(1.5,(W-pl-pr)/n*0.62);o.velas.forEach((v,i)=>{const col=v.c>=v.o?alza:baja;svg.appendChild(S("line",{x1:X(i),x2:X(i),y1:Y(v.h),y2:Y(v.l),stroke:col,"stroke-width":1.2}));svg.appendChild(S("rect",{x:X(i)-bw/2,y:Y(Math.max(v.o,v.c)),width:bw,height:Math.max(1,Math.abs(Y(v.o)-Y(v.c))),fill:v.c>=v.o?C("hoja"):col,stroke:col,"stroke-width":1.2}))})}
+  series.forEach(s=>{let d="";let pen=false;s.d.forEach((y,i)=>{if(y==null||!isFinite(y)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1);pen=true});svg.appendChild(S("path",{d,fill:"none",stroke:s.color||tinta,"stroke-width":s.ancho||2.2,"stroke-dasharray":s.punteado?"6 5":null,"stroke-linejoin":"round","stroke-linecap":"round"}))});
+  (o.lineasH||[]).forEach(l=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(l.y),y2:Y(l.y),stroke:l.color||tinta,"stroke-width":l.ancho||1.5,"stroke-dasharray":l.punteado===false?null:"5 4"}));if(l.txt)svg.appendChild(S("text",{x:W-pr-4,y:Y(l.y)-5,"text-anchor":"end","font-size":12,"font-weight":700,fill:l.color||tinta},l.txt))});
+  (o.lineasV||[]).forEach(l=>{svg.appendChild(S("line",{x1:X(l.i),x2:X(l.i),y1:pt,y2:H-pb,stroke:l.color||graf,"stroke-width":1.5,"stroke-dasharray":"4 4"}));if(l.txt)svg.appendChild(S("text",{x:X(l.i)+(l.ancla==="end"?-4:4),y:pt+12,"text-anchor":l.ancla||"start","font-size":12,fill:l.color||graf},l.txt))});
+  (o.marcas||[]).forEach(m=>{const x=X(m.i),y=Y(m.y),col=m.color||tinta;if(m.forma==="arriba")svg.appendChild(S("polygon",{points:`${x},${y-2} ${x-6},${y+9} ${x+6},${y+9}`,fill:col}));else if(m.forma==="abajo")svg.appendChild(S("polygon",{points:`${x},${y+2} ${x-6},${y-9} ${x+6},${y-9}`,fill:col}));else svg.appendChild(S("circle",{cx:x,cy:y,r:m.r||5,fill:col,stroke:C("hoja"),"stroke-width":1.5}));if(m.txt)svg.appendChild(S("text",{x:x,y:m.forma==="abajo"?y-13:y+(m.forma==="arriba"?24:-10),"text-anchor":"middle","font-size":12,"font-weight":700,fill:col},m.txt))});
+  return{X,Y,W,H,pl,pr,pt,pb};
+}
+function quiz(id,preguntas){
+  const qz=$(id);if(!qz)return;
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> "+(p.pista||"Repasa la lección y vuelve a intentar.")}});
+      op.appendChild(b)});
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d)});
+}
+</script>
+<script>
+(function(){
+function domingo(y,m,desde){const d=new Date(y,m,desde);return new Date(y,m,desde+(7-d.getDay())%7)}
+const hoy=new Date();const veranoHoy=(()=>{const y=hoy.getFullYear();return hoy>=domingo(y,2,8)&&hoy<domingo(y,10,1)})();let verano=veranoHoy;
+const hh=h=>{h=((h%24)+24)%24;const H=Math.floor(h),M=Math.round((h-H)*60);return(H<10?"0":"")+H+":"+(M<10?"0":"")+M};
+function l1(){$("inv").classList.toggle("on",!verano);$("ver").classList.toggle("on",verano);const o=verano?0:1;
+  const svg=$("g1");limpiar(svg);svg.setAttribute("viewBox","0 0 640 170");const X=h=>36+((h%24)+24)%24/24*568;
+  for(let h=0;h<=24;h+=3){svg.appendChild(S("line",{x1:36+h/24*568,x2:36+h/24*568,y1:20,y2:132,stroke:C("regla")}));svg.appendChild(S("text",{x:36+h/24*568,y:150,"text-anchor":"middle","font-size":fz(svg,12),fill:C("grafito")},hh(h)))}
+  const liq=h=>{const t=((h-o)%24+24)%24;let v=0.12;if(t>=2&&t<8.5)v=0.3;if(t>=7.5&&t<15.25)v=0.95-0.25*Math.sin((t-8.5)/6.75*Math.PI);if(t>=15&&t<16)v=0.85;if(t>=16&&t<17)v=0;return v};
+  let d="";for(let k=0;k<=240;k++){const h=k/10;d+=(k?"L":"M")+(36+h/24*568).toFixed(1)+","+(128-liq(h)*96).toFixed(1)}svg.appendChild(S("path",{d,fill:"none",stroke:C("azul"),"stroke-width":2.5}));
+  const p0=16+o;svg.appendChild(S("rect",{x:X(p0),y:20,width:568/24,height:112,fill:C("baja"),opacity:0.22}));
+  svg.appendChild(S("text",{x:X(p0)+12,y:16,"text-anchor":"middle","font-size":fz(svg,11),fill:C("baja"),"font-weight":700},"pausa"));
+  svg.appendChild(S("text",{x:28,y:16,"font-size":fz(svg,11),fill:C("azul")},"liquidez (ilustrativa)"));
+  const filas=[["Datos económicos de EE. UU.",7.5+o,"Empleo, inflación: movimientos bruscos"],["Apertura de la bolsa de acciones",8.5+o,"El momento de más volumen"],["Cierre de la bolsa de acciones",15+o,"Mucho volumen al final"],["Pausa diaria, de lunes a jueves",16+o,"Mercado cerrado una hora"],["Reapertura diaria",17+o,"Poco volumen, sesión asiática"],["Apertura de Europa (Londres)",2+o,"Sube el volumen"]];
+  $("t1").innerHTML=filas.map(f=>`<tr><td>${f[0]}</td><td class="mono">${hh(f[1])}${f[0].startsWith("Pausa")?" a "+hh(f[1]+1):""}</td><td>${f[2]}</td></tr>`).join("");}
+$("inv").addEventListener("click",()=>{verano=false;l1()});$("ver").addEventListener("click",()=>{verano=true;l1()});l1();
+const r2=azar(77);const noches=[...Array(1000)].map(()=>r2()<0.9?normal(r2)*22:normal(r2)*85);
+function l2(){const n=val("nc"),lim=val("lim");$("ncv").textContent=num(n);$("limv").textContent=usd(lim);const res=noches.map(p=>p*5*n);
+  const lo=-1600,hi=1600,nb=32,w=(hi-lo)/nb;const b=Array(nb).fill(0);res.forEach(x=>{const k=Math.max(0,Math.min(nb-1,Math.floor((x-lo)/w)));b[k]++});
+  const g=grafico($("g2"),{barras:{d:b,color:(i)=>lo+(i+1)*w<=-lim?C("baja"):C("grafito"),opacidad:0.75},n:nb,yMin:0,alto:220,decimales:0,etiquetasX:[0,8,16,24,31].map(i=>({i,txt:(lo+i*w<0?"−":"")+num(Math.abs(lo+(i+0.5)*w),0)})),pb:28});
+  const malas=res.filter(x=>x<=-lim).length;$("m2a").textContent=malas+" de 1.000";$("m2b").textContent="−"+usd(Math.abs(Math.min(...res)));const s=[...res].map(Math.abs).sort((a,b)=>a-b);$("m2c").textContent="± "+usd(s[500]);}
+enlazar(["nc","lim"],l2);l2();alTema(()=>{l1();l2()});
+quiz("quiz",[
+{q:"En invierno de Estados Unidos, ¿a qué hora de Bogotá es la pausa diaria de los futuros del S&P 500?",o:["De 4:00 a 5:00 p. m.","De 5:00 a 6:00 p. m.","No hay pausa"],c:1,e:"La pausa es de 4:00 a 5:00 p. m. de Chicago; en invierno Chicago va una hora detrás de Bogotá."},
+{q:"¿Por qué es más riesgoso operar de madrugada?",o:["Hay menos volumen, spreads más amplios y las noticias mueven más el precio","Las comisiones son más altas","La bolsa no registra las operaciones"],c:0,e:"Con pocos participantes, el libro es delgado."},
+{q:"¿Qué tienen de especial los fines de semana?",o:["Nada, el mercado sigue abierto","El mercado cierra unas 49 horas y la reapertura puede saltar tu stop","Los precios no cambian"],c:1,e:"Lo que pase en el mundo se refleja de golpe el domingo."},
+{q:"Vas a mantener una posición durante la noche. ¿Qué es prudente?",o:["Aumentar el tamaño porque hay menos competencia","Reducir el tamaño y revisar el margen nocturno","Usar órdenes a mercado"],c:1,e:"El riesgo de noche es mayor y el margen suele ser más alto."}
+]);
+})();
+</script>
+</body>
+</html>

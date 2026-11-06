@@ -228,7 +228,7 @@ const hoy=new Date();let verano=veranoEEUU(hoy);
 const ses=[["Antes de la apertura",4,9.5,"Poco volumen, solo algunos brókers"],["Sesión regular",9.5,16,"Casi todo el volumen"],["Después del cierre",16,20,"Poco volumen, reacciones a resultados"]];
 const hh=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);return (H<10?"0":"")+H+":"+(M<10?"0":"")+M};
 function l1(){$("inv").classList.toggle("on",!verano);$("ver").classList.toggle("on",verano);const off=verano?-1:0;
-  const svg=$("g1");limpiar(svg);svg.setAttribute("viewBox","0 0 640 120");const X=h=>20+h/24*600;
+  const svg=$("g1");limpiar(svg);svg.setAttribute("viewBox","0 0 640 120");const X=h=>36+h/24*568;
   for(let h=0;h<=24;h+=3){svg.appendChild(S("line",{x1:X(h),x2:X(h),y1:30,y2:86,stroke:C("regla")}));svg.appendChild(S("text",{x:X(h),y:104,"text-anchor":"middle","font-size":fz(svg,12),fill:C("grafito")},hh(h%24)))}
   const cols=[C("suave"),C("marcador"),C("suave")];
   ses.forEach((s,i)=>{svg.appendChild(S("rect",{x:X(s[1]+off),y:38,width:X(s[2]+off)-X(s[1]+off),height:40,rx:4,fill:cols[i],stroke:C("tinta"),"stroke-width":1}));svg.appendChild(S("text",{x:(X(s[1]+off)+X(s[2]+off))/2,y:63,"text-anchor":"middle","font-size":fz(svg,12),"font-weight":700,fill:i===1?C("marcador-tinta"):C("tinta")},i===1?"regular":i===0?"antes":"después"))});

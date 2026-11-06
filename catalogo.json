@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:16:02+00:00",
+  "generado": "2026-11-06T01:20:15+00:00",
   "totales": {
     "temas": 35,
-    "listos": 18,
+    "listos": 22,
     "progreso": 0
   },
   "rutas": [
@@ -166,25 +166,33 @@
           "titulo": "Micro E-mini S&P 500: tick, punto y margen",
           "archivo": "futuros/micro-e-mini.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Cuánto vale un punto y un tick del micro E-mini, cómo calcular la ganancia o pérdida de una operación y qué representa el margen frente al valor real del contrato."
         },
         {
           "titulo": "Apalancamiento y margen de mantenimiento",
           "archivo": "futuros/apalancamiento-margen.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Margen inicial, margen de mantenimiento y liquidación diaria en un simulador de cuenta, para ver cuándo llega la llamada de margen y cuántos puntos aguanta tu cuenta."
         },
         {
           "titulo": "Vencimientos y cambio de contrato (rollover)",
           "archivo": "futuros/vencimientos-rollover.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Los meses de vencimiento y sus letras, qué contrato está activo en cada fecha, cómo migra el volumen al siguiente y qué hacer con tus niveles al pasarte de contrato."
         },
         {
           "titulo": "Mercado casi 24 horas y riesgo nocturno",
           "archivo": "futuros/horario-y-riesgo-nocturno.html",
           "nivel": "avanzado",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "El horario de los futuros del S&P 500 en hora de Colombia, cómo cambia la liquidez durante el día y cuánto puede moverse una posición que dejas abierta de noche."
         }
       ]
     },
