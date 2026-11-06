@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T00:53:03+00:00",
+  "generado": "2026-11-06T01:06:24+00:00",
   "totales": {
     "temas": 35,
-    "listos": 4,
+    "listos": 9,
     "progreso": 0
   },
   "rutas": [
@@ -17,31 +17,41 @@
           "titulo": "Cómo funciona una bolsa y quién está del otro lado",
           "archivo": "fundamentos/como-funciona-bolsa.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "El libro de órdenes explicado como una plaza de mercado: compradores, vendedores, spread y por qué una orden grande mueve el precio."
         },
         {
           "titulo": "Tipos de órdenes: mercado, límite, stop y stop límite",
           "archivo": "fundamentos/tipos-de-ordenes.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué instrucción le das al bróker con cada tipo de orden y qué pasa con ella cuando el precio se mueve, incluso con un hueco de apertura."
         },
         {
           "titulo": "Acciones, ETFs y derivados",
           "archivo": "fundamentos/instrumentos.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué compras realmente con una acción, por qué un ETF reparte el riesgo y cómo un derivado multiplica las ganancias y las pérdidas."
         },
         {
           "titulo": "Brókers, comisiones y deslizamiento",
           "archivo": "fundamentos/costos-de-operar.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Los costos visibles y escondidos de cada operación, y una calculadora para ver cuánto te cuesta al año tu forma de operar."
         },
         {
           "titulo": "Sesiones, horarios y huecos de apertura",
           "archivo": "fundamentos/sesiones-y-huecos.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "A qué hora abre la bolsa de Estados Unidos en hora de Colombia, qué es un hueco de apertura y por qué tu stop no te protege de él."
         }
       ]
     },
