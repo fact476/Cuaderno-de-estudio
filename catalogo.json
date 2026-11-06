@@ -1,10 +1,10 @@
 {
   "titulo": "Cuaderno de estudio",
   "descripcion": "Plan de estudio personal con tutoriales interactivos que se van agregando a medida que se construyen. Por ahora: trading, futuros, IA aplicada y seguridad informática.",
-  "generado": "2026-11-06T01:26:42+00:00",
+  "generado": "2026-11-06T01:29:35+00:00",
   "totales": {
     "temas": 35,
-    "listos": 27,
+    "listos": 30,
     "progreso": 0
   },
   "rutas": [
@@ -268,19 +268,25 @@
           "titulo": "Regresión y clasificación con datos de precios",
           "archivo": "ia/regresion-clasificacion.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Predecir un número o una categoría: una recta de mínimos cuadrados sobre la volatilidad, y un clasificador de sube o baja con su matriz de confusión y la trampa de la tasa base."
         },
         {
           "titulo": "Por qué un modelo casi nunca predice el precio",
           "archivo": "ia/limites-de-la-prediccion.html",
           "nivel": "intermedio",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "El ojo ve patrones en el ruido, un juego de adivinar la siguiente vela, por qué una ventaja de 52 % puede perder dinero y en qué sí ayuda la IA con datos de mercado."
         },
         {
           "titulo": "Modelos de lenguaje como asistentes de investigación",
           "archivo": "ia/modelos-de-lenguaje.html",
           "nivel": "básico",
-          "estado": "pendiente"
+          "estado": "listo",
+          "fecha": "2026-11-05",
+          "descripcion": "Qué hace por dentro un modelo de lenguaje, para qué sirve al estudiar mercados y programar, cómo pedirle mejor las cosas y qué hay que verificar siempre."
         }
       ]
     },

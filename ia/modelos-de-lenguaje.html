@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modelos de lenguaje como asistentes de investigación</title>
+<meta name="description" content="Qué hace por dentro un modelo de lenguaje, para qué sirve al estudiar mercados y programar, cómo pedirle mejor las cosas y qué hay que verificar siempre.">
+<meta name="tutorial:nivel" content="básico">
+<meta name="tutorial:fecha" content="2026-11-05">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#edf0ea; --hoja:#f8faf6; --tinta:#17262e; --grafito:#56666b;
+  --regla:#c6d1ca; --cuadro:#dfe6e0; --marcador:#f2cf4a; --marcador-tinta:#2b2400;
+  --alza:#1c6e52; --baja:#b8432f; --azul:#1b62ad; --suave:#e7ece6;
+  --f-titulo:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{--papel:#0f1a1d;--hoja:#15242a;--tinta:#e2eae6;--grafito:#93a5a6;--regla:#2b4144;--cuadro:#162a2e;--marcador:#e6c449;--marcador-tinta:#221c00;--alza:#4cc38f;--baja:#f07a63;--azul:#62a6ef;--suave:#1b2f35;color-scheme:dark}
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;color:var(--tinta);font:17px/1.6 var(--f-texto);background-color:var(--papel);
+  background-image:linear-gradient(var(--cuadro) 1px,transparent 1px),linear-gradient(90deg,var(--cuadro) 1px,transparent 1px);background-size:24px 24px;overflow-wrap:break-word}
+:focus-visible{outline:2.5px solid var(--tinta);outline-offset:3px}
+.hoja{max-width:880px;margin:0 auto;padding:16px 16px 64px}
+.volver a,.siguiente a{color:var(--tinta);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+h1{font-family:var(--f-titulo);font-weight:800;font-size:clamp(36px,7vw,68px);line-height:.98;letter-spacing:-.03em;margin:28px 0 12px}
+h2{font-family:var(--f-titulo);font-weight:700;font-size:clamp(23px,3vw,30px);line-height:1.15;margin:0 0 10px}
+h3{font-family:var(--f-titulo);font-weight:700;font-size:19px;margin:18px 0 6px}
+p,li{max-width:66ch}
+a{color:var(--tinta)}
+.leccion{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:20px;margin-top:22px}
+@media (max-width:480px){.leccion{padding:16px 14px}body{font-size:16px}}
+.clave{border-left:4px solid var(--marcador);padding-left:12px}
+.aviso{border-left:4px solid var(--baja);padding-left:12px}
+.mono{font-family:var(--f-mono);font-size:.9em}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--suave);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--suave);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.caja{background:var(--suave);border-radius:6px;padding:12px 14px;margin:12px 0;overflow-x:auto}
+button{font:inherit;font-size:15px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--tinta);border-radius:6px;padding:6px 12px;cursor:pointer;touch-action:manipulation}
+button:hover{background:var(--suave)}
+button.on{background:var(--marcador);color:var(--marcador-tinta);border-color:var(--marcador-tinta)}
+select,input[type=number],input[type=text]{font:inherit;font-size:16px;color:var(--tinta);background:var(--hoja);border:1.5px solid var(--regla);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+input[type=range]{width:100%;accent-color:var(--tinta);margin:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--tinta);flex:none;margin-top:3px}
+.ctl{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr) 78px;gap:6px 12px;align-items:center;margin:10px 0;font-size:15px}
+.ctl b{font-family:var(--f-mono);text-align:right;white-space:nowrap}
+@media (max-width:520px){.ctl{grid-template-columns:minmax(0,1fr) 78px}.ctl>span:first-child{grid-column:1 / -1}.ctl input[type=range]{grid-column:1}}
+.campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 14px;margin:12px 0}
+.campos label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--grafito)}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:12px}
+@media (max-width:720px){.dos{grid-template-columns:minmax(0,1fr)}}
+.grafico{display:block;width:100%;height:auto;margin:10px 0}
+svg text{font-family:var(--f-texto)}
+.botones,.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.medidores{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.medidor{background:var(--suave);border-radius:6px;padding:8px 12px;min-width:0}
+.medidor span{display:block;font-size:13px;color:var(--grafito)}
+.medidor b{font-family:var(--f-mono);font-size:19px;overflow-wrap:anywhere}
+.medidor b.ok,.ok{color:var(--alza)}
+.medidor b.mal,.mal{color:var(--baja)}
+.ok,.mal{font-weight:700}
+.tabla-scroll{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--regla);vertical-align:top}
+th{font-family:var(--f-titulo);font-weight:700}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr.actual td{background:var(--marcador);color:var(--marcador-tinta)}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
+.tarjeta{background:var(--hoja);border:1px solid var(--regla);border-radius:6px;padding:12px 14px;min-width:0}
+.tarjeta h3{margin-top:0}
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--grafito)}
+.sw{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.lista-chk{list-style:none;padding:0}
+.lista-chk li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--regla)}
+.etiqueta{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--suave)}
+.etiqueta.ok{background:var(--alza);color:var(--hoja)}
+.etiqueta.mal{background:var(--baja);color:var(--hoja)}
+.pregunta{margin:16px 0}
+.pregunta .opciones{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.pregunta .opciones button{text-align:left}
+.pregunta .opciones button.bien{background:var(--alza);color:var(--hoja);border-color:var(--alza)}
+.pregunta .opciones button.errada{border-color:var(--baja);color:var(--baja)}
+.retro{font-size:15px;margin-top:6px;min-height:1.6em}
+.siguiente{margin-top:28px;font-size:17px}
+footer{margin-top:28px;color:var(--grafito);font-size:14px}
+</style>
+</head>
+<body>
+<div class="hoja">
+<nav class="volver" aria-label="Navegación"><a href="../index.html">← Cuaderno de estudio</a></nav>
+<h1>Modelos de lenguaje como asistentes de investigación</h1>
+<p>Un modelo de lenguaje, como los asistentes de chat, es muy bueno con el lenguaje: explicar, resumir, escribir y revisar código. No es un oráculo del mercado. Usarlo bien es saber en cuál de esos dos papeles lo estás poniendo.</p>
+
+<section class="leccion" aria-labelledby="l1">
+  <h2 id="l1">1. Por dentro: adivinar la siguiente palabra</h2>
+  <p>Un modelo de lenguaje aprendió, leyendo cantidades enormes de texto, qué palabra suele venir después de otras. Al responder, escoge la siguiente palabra una por una. Este es un modelo de juguete con muy pocas palabras:</p>
+  <label class="ctl"><span>Temperatura</span><input type="range" id="te" min="0.1" max="2" step="0.1" value="0.7"><b id="tev"></b></label>
+  <div class="botones"><button id="gen">Generar una frase</button><button id="paso">Siguiente palabra</button></div>
+  <div class="caja" id="frase" aria-live="polite" style="font-size:19px"></div>
+  <div id="probs"></div>
+  <p class="clave">La temperatura controla qué tan arriesgado es al escoger. Baja: elige casi siempre lo más probable. Alta: se anima con palabras raras. Un modelo real hace lo mismo con decenas de miles de palabras y mucho más contexto. Por eso escribe con fluidez, y por eso también puede decir con seguridad algo falso.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l2">
+  <h2 id="l2">2. Para qué sirve y para qué no</h2>
+  <div class="dos">
+    <div>
+      <h3>Buen asistente para</h3>
+      <ul>
+        <li>Explicar un concepto con ejemplos, a tu nivel.</li>
+        <li>Resumir un informe largo y señalar qué revisar.</li>
+        <li>Escribir, explicar y revisar código de pandas o de un backtest.</li>
+        <li>Proponer pruebas para tratar de romper tu idea.</li>
+        <li>Ordenar tus notas y armar un plan de estudio.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>No le pidas</h3>
+      <ul>
+        <li>Que te diga si el precio va a subir.</li>
+        <li>Datos de hoy, si no tiene búsqueda: su conocimiento tiene una fecha de corte.</li>
+        <li>Cifras exactas sin fuente para verificar.</li>
+        <li>Que decida por ti cuánto arriesgar.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="leccion" aria-labelledby="l3">
+  <h2 id="l3">3. Cómo pedir mejor</h2>
+  <p>Un buen pedido dice el contexto, la tarea, el formato y los límites. Compara:</p>
+  <div id="pares"></div>
+  <p class="clave">Pídele también que diga cuándo no está seguro y que te muestre cómo comprobar lo que afirma.</p>
+</section>
+
+<section class="leccion" aria-labelledby="l4">
+  <h2 id="l4">4. Lo que siempre se verifica</h2>
+  <ul class="lista-chk">
+    <li><input type="checkbox" id="v1"><label for="v1"><strong>Cifras y fechas</strong>: contrástalas con la fuente original, sobre todo especificaciones de contratos, horarios y tarifas.</label></li>
+    <li><input type="checkbox" id="v2"><label for="v2"><strong>Citas y referencias</strong>: un modelo puede inventar un libro o un artículo que suena real. Búscalo.</label></li>
+    <li><input type="checkbox" id="v3"><label for="v3"><strong>Código</strong>: córrelo con datos de prueba y revisa los resultados a mano en un caso pequeño.</label></li>
+    <li><input type="checkbox" id="v4"><label for="v4"><strong>Privacidad</strong>: nunca pegues llaves, contraseñas, números de cuenta ni datos de otras personas.</label></li>
+    <li><input type="checkbox" id="v5"><label for="v5"><strong>Tu sesgo</strong>: si preguntas «¿verdad que mi estrategia es buena?», tiendes a recibir lo que quieres oír. Pide los argumentos en contra.</label></li>
+  </ul>
+  <p id="vc" class="caja" aria-live="polite"></p>
+</section>
+
+<section class="leccion" aria-labelledby="repaso"><h2 id="repaso">Comprueba que entendiste</h2><div id="quiz"></div></section>
+<nav class="siguiente" aria-label="Siguiente tema">Siguiente tema: <a href="../seguridad/contrasenas-y-2fa.html">Contraseñas, gestores y doble factor</a></nav>
+<footer>Material de estudio personal con datos simulados. No es asesoría financiera.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const C=v=>getComputedStyle(document.documentElement).getPropertyValue("--"+v).trim();
+const val=id=>parseFloat($(id).value);
+const num=(n,d=0)=>Number(n).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=(n,d=0)=>(n<0?"−":"")+"US$ "+num(Math.abs(n),d);
+const pct=(n,d=1)=>num(n,d)+" %";
+const sgn=(n,d=0)=>(n>0?"+":n<0?"−":"")+num(Math.abs(n),d);
+const NS="http://www.w3.org/2000/svg";
+function S(tag,a,t){const e=document.createElementNS(NS,tag);for(const k in a)if(a[k]!==undefined&&a[k]!==null)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+function limpiar(svg){[...svg.childNodes].forEach(n=>{if(!(n.nodeName&&n.nodeName.toLowerCase()==="title"))svg.removeChild(n)})}
+function enlazar(ids,fn){ids.forEach(id=>{const e=$(id);e.addEventListener(e.tagName==="BUTTON"?"click":"input",fn);if(e.tagName==="SELECT")e.addEventListener("change",fn)})}
+const redibujos=[];
+function alTema(fn){redibujos.push(fn)}
+try{window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>redibujos.forEach(f=>f()))}catch(e){}
+let anchoPrevio=window.innerWidth,tRes=null;window.addEventListener("resize",()=>{clearTimeout(tRes);tRes=setTimeout(()=>{if(Math.abs(window.innerWidth-anchoPrevio)>40){anchoPrevio=window.innerWidth;redibujos.forEach(f=>f())}},200)});
+function fz(svg,px){const vb=(svg.viewBox&&svg.viewBox.baseVal&&svg.viewBox.baseVal.width)||640;const cw=svg.getBoundingClientRect().width||vb;return Math.round(px*Math.max(1,vb/cw*0.8))}
+function azar(seed){let a=seed>>>0||1;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function normal(r){let u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function caminata(n,o={}){const r=azar(o.seed||1);let p=o.inicio||100;const out=[p];for(let i=1;i<n;i++){p=Math.max(1,p*(1+((o.deriva||0)+normal(r)*(o.vol||1))/100));out.push(p)}return out}
+function velasSim(n,o={}){const r=azar(o.seed||1);let c=o.inicio||100;const out=[];for(let i=0;i<n;i++){const vol=(o.volDe?o.volDe(i):o.vol||1.2);const op=c*(1+normal(r)*vol*0.25/100);const cl=Math.max(1,op*(1+((o.deriva||0)+normal(r)*vol)/100));const h=Math.max(op,cl)*(1+r()*vol*0.6/100),l=Math.min(op,cl)*(1-r()*vol*0.6/100);const v=Math.round((o.volumen||1000)*(0.6+r()*0.8)*(1+Math.abs(cl-op)/op*40));out.push({o:op,h,l,c:cl,v});c=cl}return out}
+function sma(a,p){return a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((s,x)=>s+x,0)/p)}
+function ema(a,p){const k=2/(p+1);let e=null;return a.map((x,i)=>{if(x==null)return null;e=e==null?x:x*k+e*(1-k);return i<p-1?null:e})}
+function rsi(c,p=14){const out=[null];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];const up=Math.max(d,0),dn=Math.max(-d,0);if(i<=p){g+=up/p;l+=dn/p;out.push(i===p?(l===0?100:100-100/(1+g/l)):null)}else{g=(g*(p-1)+up)/p;l=(l*(p-1)+dn)/p;out.push(l===0?100:100-100/(1+g/l))}}return out}
+function rangoReal(v){return v.map((x,i)=>i===0?x.h-x.l:Math.max(x.h-x.l,Math.abs(x.h-v[i-1].c),Math.abs(x.l-v[i-1].c)))}
+function atr(v,p=14){const tr=rangoReal(v);const out=[];let a=null;tr.forEach((t,i)=>{if(i<p-1){out.push(null);return}if(a==null)a=tr.slice(0,p).reduce((s,x)=>s+x,0)/p;else a=(a*(p-1)+t)/p;out.push(a)});return out}
+function decs(r){return r<2?2:r<30?1:0}
+function grafico(svg,o){
+  limpiar(svg);
+  const cw=svg.getBoundingClientRect().width;const W=o.ancho||(cw>0?Math.max(320,Math.min(760,Math.round(cw))):640),H=o.alto||260,pl=o.pl||50,pr=o.pr||14,pt=o.pt||14,pb=o.pb||24;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  const series=o.series||[];const n=o.n||(o.velas?o.velas.length:(series[0]?series[0].d.length:(o.barras?o.barras.d.length:2)));
+  let vals=[];series.forEach(s=>s.d.forEach(x=>{if(x!=null&&isFinite(x))vals.push(x)}));
+  if(o.velas)o.velas.forEach(v=>{vals.push(v.h,v.l)});
+  if(o.barras)o.barras.d.forEach(x=>{if(x!=null)vals.push(x)});if(o.barras&&o.barras.cero!==false)vals.push(0);
+  (o.lineasH||[]).forEach(l=>vals.push(l.y));
+  let lo=o.yMin!=null?o.yMin:Math.min(...vals),hi=o.yMax!=null?o.yMax:Math.max(...vals);
+  if(!(hi>lo)){hi=lo+1;lo=lo-1}
+  if(o.yMin==null||o.yMax==null){const m=(hi-lo)*0.06;if(o.yMin==null)lo-=m;if(o.yMax==null)hi+=m}
+  const soloB=o.barras&&!o.velas&&!series.length;const X=i=>soloB?pl+(i+0.5)*(W-pl-pr)/n:pl+(n<=1?0:i*(W-pl-pr)/(n-1)),Y=y=>pt+(hi-y)/(hi-lo)*(H-pt-pb);
+  const regla=C("regla"),graf=C("grafito"),tinta=C("tinta"),alza=C("alza"),baja=C("baja");
+  const dd=o.decimales!=null?o.decimales:decs(hi-lo);
+  const ticks=o.ticks||(()=>{const t=[];for(let k=0;k<=4;k++)t.push(lo+(hi-lo)*k/4);return t})();
+  ticks.forEach(t=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(t),y2:Y(t),stroke:regla,"stroke-width":1}));svg.appendChild(S("text",{x:pl-6,y:Y(t)+4,"text-anchor":"end","font-size":12,fill:graf},(o.fmtY||(v=>num(v,dd)))(t)))});
+  (o.bandas||[]).forEach(b=>svg.appendChild(S("rect",{x:X(b.i0),y:pt,width:Math.max(1,X(b.i1)-X(b.i0)),height:H-pt-pb,fill:b.color||C("suave"),opacity:b.opacidad||1})));
+  (o.etiquetasX||[]).forEach(e=>svg.appendChild(S("text",{x:X(e.i),y:H-6,"text-anchor":e.ancla||"middle","font-size":12,fill:graf},e.txt)));
+  if(o.barras){const bw=Math.max(1,(W-pl-pr)/n*0.7);o.barras.d.forEach((x,i)=>{if(x==null)return;const y0=Y(o.barras.base||0),y1=Y(x);const col=typeof o.barras.color==="function"?o.barras.color(i,x):(o.barras.color||graf);svg.appendChild(S("rect",{x:X(i)-bw/2,y:Math.min(y0,y1),width:bw,height:Math.max(0.5,Math.abs(y1-y0)),fill:col,opacity:o.barras.opacidad||1}))})}
+  if(o.velas){const bw=Math.max(1.5,(W-pl-pr)/n*0.62);o.velas.forEach((v,i)=>{const col=v.c>=v.o?alza:baja;svg.appendChild(S("line",{x1:X(i),x2:X(i),y1:Y(v.h),y2:Y(v.l),stroke:col,"stroke-width":1.2}));svg.appendChild(S("rect",{x:X(i)-bw/2,y:Y(Math.max(v.o,v.c)),width:bw,height:Math.max(1,Math.abs(Y(v.o)-Y(v.c))),fill:v.c>=v.o?C("hoja"):col,stroke:col,"stroke-width":1.2}))})}
+  series.forEach(s=>{let d="";let pen=false;s.d.forEach((y,i)=>{if(y==null||!isFinite(y)){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(y).toFixed(1);pen=true});svg.appendChild(S("path",{d,fill:"none",stroke:s.color||tinta,"stroke-width":s.ancho||2.2,"stroke-dasharray":s.punteado?"6 5":null,"stroke-linejoin":"round","stroke-linecap":"round"}))});
+  (o.lineasH||[]).forEach(l=>{svg.appendChild(S("line",{x1:pl,x2:W-pr,y1:Y(l.y),y2:Y(l.y),stroke:l.color||tinta,"stroke-width":l.ancho||1.5,"stroke-dasharray":l.punteado===false?null:"5 4"}));if(l.txt)svg.appendChild(S("text",{x:W-pr-4,y:Y(l.y)-5,"text-anchor":"end","font-size":12,"font-weight":700,fill:l.color||tinta},l.txt))});
+  (o.lineasV||[]).forEach(l=>{svg.appendChild(S("line",{x1:X(l.i),x2:X(l.i),y1:pt,y2:H-pb,stroke:l.color||graf,"stroke-width":1.5,"stroke-dasharray":"4 4"}));if(l.txt)svg.appendChild(S("text",{x:X(l.i)+(l.ancla==="end"?-4:4),y:pt+12,"text-anchor":l.ancla||"start","font-size":12,fill:l.color||graf},l.txt))});
+  (o.marcas||[]).forEach(m=>{const x=X(m.i),y=Y(m.y),col=m.color||tinta;if(m.forma==="arriba")svg.appendChild(S("polygon",{points:`${x},${y-2} ${x-6},${y+9} ${x+6},${y+9}`,fill:col}));else if(m.forma==="abajo")svg.appendChild(S("polygon",{points:`${x},${y+2} ${x-6},${y-9} ${x+6},${y-9}`,fill:col}));else svg.appendChild(S("circle",{cx:x,cy:y,r:m.r||5,fill:col,stroke:C("hoja"),"stroke-width":1.5}));if(m.txt)svg.appendChild(S("text",{x:x,y:m.forma==="abajo"?y-13:y+(m.forma==="arriba"?24:-10),"text-anchor":"middle","font-size":12,"font-weight":700,fill:col},m.txt))});
+  return{X,Y,W,H,pl,pr,pt,pb};
+}
+function quiz(id,preguntas){
+  const qz=$(id);if(!qz)return;
+  preguntas.forEach((p,k)=>{
+    const d=document.createElement("div");d.className="pregunta";
+    const t=document.createElement("p");t.style.fontWeight="700";t.style.margin="0";t.textContent=(k+1)+". "+p.q;d.appendChild(t);
+    const op=document.createElement("div");op.className="opciones";
+    const r=document.createElement("div");r.className="retro";r.setAttribute("aria-live","polite");
+    p.o.forEach((txt,j)=>{const b=document.createElement("button");b.textContent=txt;
+      b.addEventListener("click",()=>{op.querySelectorAll("button").forEach(x=>x.classList.remove("bien","errada"));
+        if(j===p.c){b.classList.add("bien");r.innerHTML="<span class='ok'>Correcto.</span> "+p.e}
+        else{b.classList.add("errada");r.innerHTML="<span class='mal'>Todavía no.</span> "+(p.pista||"Repasa la lección y vuelve a intentar.")}});
+      op.appendChild(b)});
+    d.appendChild(op);d.appendChild(r);qz.appendChild(d)});
+}
+</script>
+<script>
+(function(){
+const M={"inicio":[["El",5],["La",3],["Un",2]],"El":[["precio",5],["mercado",4],["bróker",1]],"La":[["acción",5],["volatilidad",3],["tendencia",2]],"Un":[["contrato",4],["modelo",3],["dato",2]],
+"precio":[["subió",4],["bajó",4],["se movió",2]],"mercado":[["abrió",4],["cayó",3],["subió",3]],"bróker":[["cobró",5],["ejecutó",4]],"acción":[["subió",4],["cayó",4],["abrió",2]],"volatilidad":[["aumentó",6],["bajó",4]],"tendencia":[["continuó",5],["se rompió",4]],
+"contrato":[["vence",5],["subió",3]],"modelo":[["falló",4],["acertó",3],["aprendió",3]],"dato":[["sorprendió",5],["confirmó",4]],
+"subió":[["hoy",5],["con fuerza",3],["un poco",3]],"bajó":[["hoy",5],["un poco",4],["con fuerza",2]],"se movió":[["poco",5],["mucho",4]],"abrió":[["con hueco",5],["sin cambios",4]],"cayó":[["fuerte",5],["un poco",4]],"cobró":[["la comisión",6]],"ejecutó":[["la orden",6]],
+"aumentó":[["hoy",5],["de golpe",3]],"continuó":[["hoy",4],["una semana",4]],"se rompió":[["hoy",5]],"vence":[["en diciembre",6],["el viernes",4]],"falló":[["fuera de muestra",6],["hoy",3]],"acertó":[["por suerte",5],["hoy",3]],"aprendió":[["el ruido",6],["algo",3]],"sorprendió":[["al mercado",6]],"confirmó":[["la tendencia",5]]};
+let frase=["inicio"];
+function dist(prev,t){const op=M[prev];if(!op)return null;const w=op.map(o=>Math.pow(o[1],1/t));const s=w.reduce((a,b)=>a+b,0);return op.map((o,i)=>({w:o[0],p:w[i]/s}))}
+function pintar(){$("tev").textContent=num(val("te"),1);const txt=frase.slice(1).join(" ");$("frase").textContent=txt?txt+(M[frase[frase.length-1]]?" …":"."):"(vacía: pulsa «Siguiente palabra»)";
+  const d=dist(frase[frase.length-1],val("te"));$("probs").innerHTML=d?"<p style='margin:6px 0;font-size:14px;color:var(--grafito)'>Opciones para la siguiente palabra:</p>"+d.map(o=>`<div class="ctl" style="grid-template-columns:minmax(90px,auto) minmax(0,1fr) 60px"><span>${o.w}</span><span style="display:block;height:12px;border-radius:6px;background:var(--azul);width:${Math.max(2,o.p*100)}%"></span><b>${Math.round(o.p*100)} %</b></div>`).join(""):"<p style='font-size:14px;color:var(--grafito)'>Frase terminada. Pulsa «Generar una frase» para empezar otra.</p>";}
+function siguiente(){const d=dist(frase[frase.length-1],val("te"));if(!d){frase=["inicio"];pintar();return}let x=Math.random(),k=0;for(;k<d.length-1;k++){x-=d[k].p;if(x<=0)break}frase.push(d[k].w);pintar()}
+$("paso").addEventListener("click",siguiente);$("gen").addEventListener("click",()=>{frase=["inicio"];while(M[frase[frase.length-1]])siguiente()});$("te").addEventListener("input",pintar);pintar();
+const pares=[["Explícame el RSI.","Estoy aprendiendo análisis técnico y ya entiendo las medias móviles. Explícame el RSI con un ejemplo numérico de 14 días, en menos de 300 palabras, y dime en qué casos engaña."],
+["Hazme un backtest.","Tengo un DataFrame de pandas con columnas open, high, low, close y volume, índice de fechas diarias. Escribe una función que pruebe esta regla: comprado si el cierre está sobre la media de 20 días. Usa la señal desplazada un día, incluye un costo de 0,1 % por operación y devuelve la curva de capital. Explica cada paso."],
+["¿Mi estrategia es buena?","Te paso los resultados de mi estrategia: 60 operaciones, 45 % de aciertos, ganancia media 1,8 R. Dime qué no puedo concluir con estos datos, qué pruebas me faltan para descartar suerte y sobreajuste, y qué preguntarías tú."]];
+$("pares").innerHTML=pares.map((p,i)=>`<div class="tarjetas"><div class="tarjeta"><span class="etiqueta mal">Vago</span><p class="mono">${p[0]}</p></div><div class="tarjeta"><span class="etiqueta ok">Mejor</span><p class="mono">${p[1]}</p></div></div>`).join("");
+function chk(){const n=[1,2,3,4,5].filter(i=>$("v"+i).checked).length;$("vc").textContent=n===5?"Con esas cinco revisiones, el asistente te ahorra tiempo sin meterte errores.":`${n} de 5. Repasa las que faltan antes de usar una respuesta para decidir.`}
+[1,2,3,4,5].forEach(i=>$("v"+i).addEventListener("change",chk));chk();alTema(pintar);
+quiz("quiz",[
+{q:"¿Qué hace un modelo de lenguaje al responder?",o:["Busca la respuesta en una base de datos de verdades","Escoge una por una las palabras más plausibles según lo que aprendió","Copia páginas de internet"],c:1,e:"Por eso escribe con fluidez y por eso puede equivocarse con total seguridad."},
+{q:"Un asistente te da una cifra del margen de un contrato. ¿Qué haces?",o:["La usas tal cual","La verificas en la fuente oficial o con tu bróker","La redondeas"],c:1,e:"Los datos que cambian con el tiempo, como márgenes y tarifas, siempre se confirman en la fuente."},
+{q:"¿Cuál pedido es mejor?",o:["«Hazme un backtest.»","Uno que dice tus datos, la regla exacta, los costos y qué quieres de resultado","«¿Mi estrategia es buena?»"],c:1,e:"Contexto, tarea, formato y límites mejoran mucho la respuesta."},
+{q:"¿Qué nunca debes pegar en un chat con un asistente?",o:["Una pregunta de pandas","Llaves de API, contraseñas o números de cuenta","Un resumen de tus resultados"],c:1,e:"Un secreto pegado en cualquier servicio ya no es secreto."}
+]);
+})();
+</script>
+</body>
+</html>
